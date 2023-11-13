@@ -6,14 +6,15 @@ use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 
 class RequiredIfRule extends AbstractRuleDependentAnotherInput{
 
-    public function __construct(string $keyFromAnotherInput, callable $needsToBeRequiredIf, string $errorMessage)
+    public function __construct(string $keyFromAnotherInput, callable $needsToBeRequiredIf)
     {
         parent::__construct($keyFromAnotherInput, $needsToBeRequiredIf);
-        $this->setMessage($errorMessage);
+        $this->setIsKey(true);
     }
     
     public function isRuleValid(): bool
     {
+        $this->setMessage("Le champs, " . $this->getPlaceHolder() . ", est requis car le champs " . $this->getPlaceHolder($this->getInput()) . " est vide.");
         $value = $this->getValue();
         $valueFromAnotherInput = $this->getValueFromAnotherInput();
 

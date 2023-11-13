@@ -23,6 +23,7 @@ class Validator
 
     private bool $didValidationFailed = false;
     private bool $canBeNullable = false;
+    private bool $needsToBeExcluded = false;
 
     /**
      * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
@@ -72,7 +73,7 @@ class Validator
     private function executeValidationRules(array &$validationRules, string $key)
     {
         $this->validValue = null;
-
+        $this->needsToBeExcluded = false;
         foreach ($validationRules as $validationRule) {
 
             if ($validationRule instanceof AbstractRuleDependentAnotherInput) {
@@ -98,7 +99,7 @@ class Validator
             //     }
             // }
         }
-        if ($this->didValidationFailed == false) {
+        if ($this->didValidationFailed == false && $this->needsToBeExcluded == false) {
             if (ValueHelper::isEmpty($this->validValue)) {
                 $this->validatedData[$key] = null;
             } else {
@@ -117,16 +118,20 @@ class Validator
                 $this->didValidationFailed = true;
                 $this->setErrorMessage($key, $validationRule->getMessage());
             }
-            else if(($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false){
-                $this->didValidationFailed = true;
-                $this->setErrorMessage($key, $validationRule->getMessage());
-            }
+            // else if(($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false){
+            //     $this->didValidationFailed = true;
+            //     $this->setErrorMessage($key, $validationRule->getMessage());
+            // }
             else if($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false){
                 //break loop
             }
         } else {
             if (is_null($this->validValue) || $validationRule->getShouldCastValue()) {
                 $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
+            }
+
+            if($validationRule->getNeedsToBeExcluded()){
+                $this->needsToBeExcluded = true;
             }
         }
     }

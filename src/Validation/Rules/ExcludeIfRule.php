@@ -6,6 +6,12 @@ use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 
 class ExcludeIfRule extends AbstractRuleDependentAnotherInput {
 
+    public function __construct(string $keyFromAnotherInput, callable $needsToBeExcludedIf)
+    {
+        parent::__construct($keyFromAnotherInput, $needsToBeExcludedIf);
+        $this->setIsKey(true);
+    }
+
     public function isRuleValid(): bool
     {
         $value = $this->getValue();

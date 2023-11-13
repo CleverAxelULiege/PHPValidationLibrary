@@ -1,6 +1,7 @@
 <?php
 
 use App\Helper\ValueHelper;
+use App\Validation\Rules\ExcludeIfRule;
 use App\Validation\Validator;
 use App\Validation\Rules\LengthRule;
 use App\Validation\Rules\NullableRule;
@@ -16,24 +17,30 @@ use App\Validation\Rules\MustBeBeforeTimeRule;
 
 require(__DIR__ . "/vendor/autoload.php");
 
-// $validationRules = [
-//     "phone_number" => [
-//         new NullableRule(),
-//         new LengthRule(10, 0),
-//     ],
-//     "another_phone_number" => [
-//         new NullableRule(),
-//         new RequiredIfRule("phone_number", function($value, $valueFromAnotherInput){
-//             return ValueHelper::isEmpty($valueFromAnotherInput);
-//         }, "Le champs blablabla est requis par rapport à ça")
-//     ],
-// ];
+$validationRules = [
+    "phone_number" => [
+        new NullableRule(),
+        new LengthRule(10, 0),
+        new ExcludeIfRule("phone_number", function($value, $valueFromAnotherInput){
+            return ValueHelper::isEmpty($value);
+        }),
+    ],
+    "another_phone_number" => [
+        new NullableRule(),
+        new RequiredIfRule("phone_number", function($value, $valueFromAnotherInput){
+            return ValueHelper::isEmpty($valueFromAnotherInput);
+        }),
+        new ExcludeIfRule("phone_number", function($value, $valueFromAnotherInput){
+            return ValueHelper::isEmpty($valueFromAnotherInput) == false;
+        }),
+    ],
+];
 
 
-// $data = [
-//     "phone_number" => "test",
-//     "another_phone_number" => "coucou",
-// ];
+$data = [
+    "phone_number" => "",
+    "another_phone_number" => "0515",
+];
 
 // $validationRules = [
 //     "start_date" => [
@@ -51,21 +58,23 @@ require(__DIR__ . "/vendor/autoload.php");
 //     "end_date" => "2023/10/31"
 // ];
 
-$validationRules = [
-    "start_time" => [
-        new NullableRule(),
-        new MustBeAfterTimeRule("10:00"),
-        new MustBeBeforeOrEqualsTimeRule("end_time", true),
-    ],
-    "end_time" => [
-        new NullableRule(),
-    ]
-];
+// $validationRules = [
+//     "start_time" => [
+//         new NullableRule(),
+//         new MustBeAfterTimeRule("10:00"),
+//         new MustBeBeforeOrEqualsTimeRule("end_time", true),
+//     ],
+//     "end_time" => [
+//         new RequiredRule(),
+//         new MustBeBeforeTimeRule("20:00"),
+//         new MustBeAfterTimeRule("start_time", true)
+//     ]
+// ];
 
-$data = [
-    "start_time" => "15:00",
-    "end_time" => null
-];
+// $data = [
+//     "start_time" => "15:00",
+//     "end_time" => "17:00"
+// ];
 
 $validator = new Validator($validationRules, $data);
 
@@ -78,17 +87,3 @@ if ($validator->validate()) {
     var_dump($validator->getErrorValidationMessages());
     echo "</pre>";
 }
-
-// class TestBidon{
-
-//     public mixed $value = ";";
-    
-//     public function setTest(){
-//         $this->value = "not empty";
-//         return $this;
-//     }
-// }
-
-// $arrayTest = [((new TestBidon())->setTest() ?? "lol")];
-
-// var_dump($arrayTest);

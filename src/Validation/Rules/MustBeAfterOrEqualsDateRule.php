@@ -13,8 +13,13 @@ class MustBeAfterOrEqualsDateRule extends AbstractRuleDateOperation{
         $value = $this->getValue();
         $valueFromAnotherInput = $this->getValueFromAnotherInput();
 
-        $this->setMessage("Date au format invalide. Doit être sous chaine de charactères au format " . $this->format);
+        $this->setMessage("Date au format invalide dans le champs, " . $this->getPlaceHolder() .", doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($value)){
+            return false;
+        }
+
+        $this->setMessage("Date au format invalide, " . $this->getPlaceHolder($this->getInput())  . ", doit être sous une chaine de charactères au format " . $this->format);
+        if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
             return false;
         }
 
