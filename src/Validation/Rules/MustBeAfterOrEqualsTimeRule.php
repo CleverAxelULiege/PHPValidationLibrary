@@ -3,7 +3,6 @@
 namespace App\Validation\Rules;
 
 use App\Helper\DateTimeHelper;
-use App\Validation\Rules\MustBeAfterTimeRule;
 
 class MustBeAfterOrEqualsTimeRule extends MustBeAfterTimeRule{
 

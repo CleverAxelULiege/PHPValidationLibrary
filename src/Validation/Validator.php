@@ -2,25 +2,30 @@
 
 namespace App\Validation;
 
+use LogicException;
+use App\Helper\ValueHelper;
 use App\Validation\Rules\NullableRule;
 use App\Validation\Rules\RequiredRule;
-use LogicException;
+use App\Validation\Rules\Parent\AbstractRule;
+use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 
 class Validator
 {
     /**
-     * @var \App\Validation\Rules\AbstractRule[][] $validationRulesWithKey
+     * @var \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
      */
     private array $validationRulesWithKey;
     private array $data;
 
     private array $errorValidationMessages = [];
     private array $validatedData = [];
+    private mixed $validValue = null;
+
     private bool $didValidationFailed = false;
     private bool $canBeNullable = false;
 
     /**
-     * @param \App\Validation\Rules\AbstractRule[][] $validationRulesWithKey
+     * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
      */
     public function __construct(array $validationRulesWithKey, array $data)
     {
@@ -30,35 +35,26 @@ class Validator
 
     public function validate()
     {
+        $this->setAllValuesAndKeys();
+
         foreach ($this->validationRulesWithKey as $key => $validationRules) {
             $this->testForNullableRuleAndRequiredRuleInSameList($validationRules);
-
-            if(isset($this->data[$key]) == false){
-                $this->data[$key] = null;
-            }
-
             $this->executeValidationRules($validationRules, $key);
         }
-        // echo "<pre>";
-        // print_r(array_map(function($errorMessage){
-        //     return array_unique($errorMessage);
-        // },$this->errorValidationMessages));
-        // echo "</pre>";
-        // echo "<br>--------------------------------<br>";
-        // echo "<pre>";
-        // var_dump($this->validatedData);
-        // echo "</pre>";
+
         return !$this->didValidationFailed;
     }
 
-    public function getValidatedData(){
+    public function getValidatedData()
+    {
         return $this->validatedData;
     }
 
-    public function getErrorValidationMessages(){
-        return array_map(function($errorMessage){
+    public function getErrorValidationMessages()
+    {
+        return array_map(function ($errorMessage) {
             return array_unique($errorMessage);
-        },$this->errorValidationMessages);
+        }, $this->errorValidationMessages);
     }
 
     private function setErrorMessage(string $key, string $message)
@@ -71,79 +67,129 @@ class Validator
     }
 
     /**
-     * @param \App\Validation\Rules\AbstractRule[] $validationRules
+     * @param \App\Validation\Rules\Parent\AbstractRule[] $validationRules
      */
     private function executeValidationRules(array &$validationRules, string $key)
     {
-        $validValue = null;
+        $this->validValue = null;
+
         foreach ($validationRules as $validationRule) {
-            //la règle n'est pas valide
-            if ($validationRule($this->data[$key], $key) == false) {
-                //si une règle dit que ça peut être NULL mais qu'il y a un input, je considère que la règle a été enfreinte et que la validation
-                //pour cette règle a raté. Sinon si ça peut être NULL et que l'input est vide, je casse la boucle et considère la règle comme non enfreinte.
-                if (($this->canBeNullable && $this->isDataEmpty($this->data[$key]) == false) || $this->canBeNullable == false) {
-                    $this->didValidationFailed = true;
-                    $this->setErrorMessage($key, $validationRule->getMessage());
-                } else if ($this->canBeNullable && $this->isDataEmpty($this->data[$key])) {
-                    break;
-                }
+            if ($validationRule instanceof AbstractRuleDependentAnotherInput) {
+                $this->dependentFromAnotherInput($validationRule, $key);
             } else {
-                //une des règles a été validée on sauvegarde la valeur.
-                //Si une valeur n'a pas encore été assignée ou si c'est la règle a également pour rôle de cast la valeur on assigne à validValue
-                if (is_null($validValue) || $validationRule->getShouldCastValue()) {
-                    $validValue = $validationRule->getValue($validationRule->getShouldCastValue());
-                }
+                $this->notDependentFromAnotherInput($validationRule, $key);
             }
+            // //la règle n'est pas valide
+            // if ($validationRule->isRuleValid() == false) {
+            //     //si une règle dit que ça peut être NULL mais qu'il y a un input, je considère que la règle a été enfreinte et que la validation
+            //     //pour cette règle a raté. Sinon si ça peut être NULL et que l'input est vide, je casse la boucle et considère la règle comme non enfreinte.
+            //     if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
+            //         $this->didValidationFailed = true;
+            //         $this->setErrorMessage($key, $validationRule->getMessage());
+            //     } else if ($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) {
+            //         break;
+            //     }
+            // } else {
+            //     //une des règles a été validée on sauvegarde la valeur.
+            //     //Si une valeur n'a pas encore été assignée ou si c'est la règle a également pour rôle de cast la valeur on assigne à validValue
+            //     if (is_null($this->validValue) || $validationRule->getShouldCastValue()) {
+            //         $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
+            //     }
+            // }
         }
         if ($this->didValidationFailed == false) {
-            //toujours le cas pour si la règle est Nullable et qu'il n'y a rien dedans
-            // if ($this->isDataEmpty($this->data[$key]) ||  (is_string($validValue) && trim($validValue) == "")) {
-            if ($this->isDataEmpty($validValue)) {
+            if (ValueHelper::isEmpty($this->validValue)) {
                 $this->validatedData[$key] = null;
             } else {
-                $this->validatedData[$key] = $validValue;
+                $this->validatedData[$key] = $this->validValue;
+            }
+        }
+    }
+
+    private  function dependentFromAnotherInput(AbstractRuleDependentAnotherInput $validationRule, string $key)
+    {
+        if (isset($this->data[$validationRule->getKeyFromAnotherInput()]) == false) {
+            $this->didValidationFailed = true;
+            $this->setErrorMessage($key, $validationRule->getMessage());
+            return;
+        }
+
+        $validationRule->setValueFromAnotherInput($this->data[$validationRule->getKeyFromAnotherInput()]);
+
+        if ($validationRule->isRuleValid() == false) {
+            if ($validationRule->getIsRequired() && ValueHelper::isEmpty($validationRule->getValue())) {
+                $this->didValidationFailed = true;
+                $this->setErrorMessage($key, $validationRule->getMessage());
+            }
+            else if(($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false){
+                $this->didValidationFailed = true;
+                $this->setErrorMessage($key, $validationRule->getMessage());
+            }
+            else if($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false){
+                //break loop
+            }
+        } else {
+            if (is_null($this->validValue) || $validationRule->getShouldCastValue()) {
+                $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
+            }
+        }
+    }
+
+    private function notDependentFromAnotherInput(AbstractRule $validationRule, string $key)
+    {
+        //la règle n'est pas valide
+        if ($validationRule->isRuleValid() == false) {
+            //si une règle dit que ça peut être NULL mais qu'il y a un input, je considère que la règle a été enfreinte et que la validation
+            //pour cette règle a raté. Sinon si ça peut être NULL et que l'input est vide, je casse la boucle et considère la règle comme non enfreinte.
+            if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
+                $this->didValidationFailed = true;
+                $this->setErrorMessage($key, $validationRule->getMessage());
+            } else if ($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) {
+                //stuff MAYBE RETURN TRUE // IT WAS BREAK
+            }
+        } else {
+            //une des règles a été validée on sauvegarde la valeur.
+            //Si une valeur n'a pas encore été assignée ou si c'est la règle a également pour rôle de cast la valeur on assigne à validValue
+            if (is_null($this->validValue) || $validationRule->getShouldCastValue()) {
+                $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
+            }
+        }
+    }
+
+
+    private function setAllValuesAndKeys()
+    {
+        foreach ($this->validationRulesWithKey as $key => $rules) {
+            if (isset($this->data[$key]) == false) {
+                $this->data[$key] = null;
+            }
+
+            foreach ($rules as $rule) {
+                $rule->setValueAndKey($this->data[$key], $key);
             }
         }
     }
 
     /**
-     * @param \App\Validation\Rules\AbstractRule[] $validationRules
+     * @param \App\Validation\Rules\Parent\AbstractRule[] $validationRules
      * @throws LogicException if NullableRule and RequiredRule in same array
      */
     private function testForNullableRuleAndRequiredRuleInSameList(array &$validationRules)
     {
-        $isRequiredIsNullable = [
-            "isRequired" => false,
-            "isNullable" => false,
-        ];
+        $isRequired = false;
+        $isNullable = false;
+
         foreach ($validationRules as $validationRule) {
             if ($validationRule instanceof NullableRule)
-                $isRequiredIsNullable["isNullable"] = true;
+                $isNullable = true;
             else if ($validationRule instanceof RequiredRule)
-                $isRequiredIsNullable["isRequired"] = true;
+                $isRequired = true;
 
-            $this->canBeNullable = $isRequiredIsNullable["isNullable"];
+            $this->canBeNullable = $isNullable;
 
-            if ($isRequiredIsNullable["isRequired"] && $isRequiredIsNullable["isNullable"]) {
+            if ($isRequired && $isNullable) {
                 throw new LogicException("You can't have a NullableRule and a RequiredRule in the same list of rules.");
             }
         }
-    }
-
-    private function isDataEmpty($value)
-    {
-        if (isset($value) == false || is_null($value)) {
-            return true;
-        }
-
-        if (is_string($value) && strlen(trim($value)) == 0) {
-            return true;
-        }
-
-        if (is_array($value) && count($value) == 0) {
-            return true;
-        }
-
-        return false;
     }
 }

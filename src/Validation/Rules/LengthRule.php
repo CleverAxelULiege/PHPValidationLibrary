@@ -2,7 +2,7 @@
 
 namespace App\Validation\Rules;
 use App\Validation\Rules\RuleException;
-use App\Validation\Rules\AbstractRuleThrowableException;
+use App\Validation\Rules\Parent\AbstractRuleThrowableException;
 
 class LengthRule extends AbstractRuleThrowableException
 {

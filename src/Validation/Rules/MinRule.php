@@ -3,7 +3,7 @@
 namespace App\Validation\Rules;
 
 use App\Helper\NumberHelper;
-use App\Validation\Rules\AbstractRule;
+use App\Validation\Rules\Parent\AbstractRule;
 
 class MinRule extends AbstractRule{
     private float $minValue;

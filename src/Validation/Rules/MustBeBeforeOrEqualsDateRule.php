@@ -4,6 +4,7 @@ namespace App\Validation\Rules;
 
 use DateTime;
 use App\Helper\DateTimeHelper;
+use App\Validation\Rules\Parent\AbstractRuleDateOperation;
 
 class MustBeBeforeOrEqualsDateRule extends AbstractRuleDateOperation{
 

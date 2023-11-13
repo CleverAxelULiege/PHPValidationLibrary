@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Validation\Rules;
+namespace App\Validation\Rules\Parent;
 
 use App\Helper\DateTimeHelper;
+use App\Validation\Rules\RuleException;
 
 /**
  * @method void __construct(?string $dateToCompare)

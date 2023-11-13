@@ -3,6 +3,7 @@
 namespace App\Validation\Rules;
 
 use App\Helper\DateTimeHelper;
+use App\Validation\Rules\Parent\AbstractRule;
 
 class DateRule extends AbstractRule{
 

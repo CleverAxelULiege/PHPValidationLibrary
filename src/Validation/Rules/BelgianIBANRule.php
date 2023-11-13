@@ -2,6 +2,8 @@
 
 namespace App\Validation\Rules;
 
+use App\Validation\Rules\Parent\AbstractRule;
+
 class BelgianIBANRule extends AbstractRule{
     public function isRuleValid(): bool
     {

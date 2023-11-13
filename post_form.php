@@ -2,7 +2,7 @@
 
 require __DIR__ . "/vendor/autoload.php";
 
-use App\Validation\Rules\AbstractRule;
+use App\Validation\Rules\Parent\AbstractRule;
 use App\Validation\Rules\BelgianNationalNumberRule;
 use App\Validation\Rules\BelgianPhoneNumberRule;
 use App\Validation\Rules\EmailRule;

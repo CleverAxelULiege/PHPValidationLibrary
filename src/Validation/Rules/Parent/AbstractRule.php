@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Validation\Rules;
+namespace App\Validation\Rules\Parent;
 
 use BadMethodCallException;
 
@@ -10,16 +10,11 @@ abstract class AbstractRule
     private mixed $value = null;
     private ?string $type = null;
     private ?string $key = null;
+
     
-    public function __invoke(mixed $value, string $key) : bool
+    
+    public function __invoke() : bool
     {
-
-        if(is_string($value))
-           $value = trim($value);
-
-        $this->setValue($value);
-        $this->setKey($key);
-        
         return $this->isRuleValid();
     }
     
@@ -30,7 +25,7 @@ abstract class AbstractRule
         return $this->message;
     }
 
-    protected function getKey(){
+    public function getKey(){
         return $this->key;
     }
 
@@ -42,7 +37,15 @@ abstract class AbstractRule
         $this->message = $message;
     }
 
+    public function setValueAndKey(mixed $value, string $key){
+        $this->setValue($value);
+        $this->setKey($key);
+    }
+
     protected function setValue(mixed $value){
+        if(is_string($value))
+            $value = trim($value);
+
         $this->value = $value;
     }
 
@@ -50,7 +53,7 @@ abstract class AbstractRule
         return is_null($this->type) == false;
     }
 
-    protected function getPlaceHolder(?string $placeholder = null){
+    public function getPlaceHolder(?string $placeholder = null){
         if(is_null($placeholder) == false)
             return ":".$placeholder;
         
@@ -87,6 +90,7 @@ abstract class AbstractRule
         $this->type = $type;
     }
 
+    //à supprimer STATIC
     public static function fromInput(mixed $value){
         return $value ?? null;
     }
