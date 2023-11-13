@@ -108,13 +108,14 @@ class Validator
 
     private  function dependentFromAnotherInput(AbstractRuleDependentAnotherInput $validationRule, string $key)
     {
-        if (isset($this->data[$validationRule->getKeyFromAnotherInput()]) == false) {
+        if ($validationRule->getIsHardcoded() == false && isset($this->data[$validationRule->getInput()]) == false) {
             $this->didValidationFailed = true;
             $this->setErrorMessage($key, $validationRule->getMessage());
             return;
         }
 
-        $validationRule->setValueFromAnotherInput($this->data[$validationRule->getKeyFromAnotherInput()]);
+        $valueFromAnotherInput = $validationRule->getIsHardcoded() ? $validationRule->getInput() : $this->data[$validationRule->getInput()];
+        $validationRule->setValueFromAnotherInput($valueFromAnotherInput);
 
         if ($validationRule->isRuleValid() == false) {
             if ($validationRule->getIsRequired() && ValueHelper::isEmpty($validationRule->getValue())) {

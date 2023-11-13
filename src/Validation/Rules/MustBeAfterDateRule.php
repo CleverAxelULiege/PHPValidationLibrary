@@ -9,7 +9,7 @@ use App\Validation\Rules\Parent\AbstractRuleDateOperation;
 class MustBeAfterDateRule extends AbstractRuleDateOperation{
 
 
-    public function isruleValid(): bool
+    public function isRuleValid(): bool
     {
         $value = $this->getValue();
         $this->setMessage("Date au format invalide. Doit être sous chaine de charactères au format " . $this->format);
