@@ -2,9 +2,10 @@
 
 namespace App\Validation\Rules;
 
-use App\Helper\DateTimeHelper;
-use App\Helper\StringHelper;
 use DateTime;
+use App\Helper\StringHelper;
+use App\Helper\DateTimeHelper;
+use App\Validation\Rules\Parent\AbstractRule;
 
 //https://www.ksz-bcss.fgov.be/sites/default/files/assets/services_et_support/cbss_manual_fr.pdf
 //https://www.ibz.rrn.fgov.be/fileadmin/user_upload/fr/dgip/rapports-annuels/2005/rn.pdf

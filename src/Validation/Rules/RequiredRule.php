@@ -2,7 +2,9 @@
 
 namespace App\Validation\Rules;
 
-use App\Validation\Rules\AbstractRule;
+use App\Helper\ValueHelper;
+use App\Validation\Rules\Parent\AbstractRule;
+
 
 class RequiredRule extends AbstractRule{
 
@@ -11,15 +13,7 @@ class RequiredRule extends AbstractRule{
         $value = $this->getValue();
         $this->setMessage("Le champs, " . $this->getPlaceHolder() . ", est obligatoire");
         
-        if(isset($value) == false || is_null($value)){
-            return false;
-        }
-
-        if(is_string($value) && strlen(trim($value)) == 0){
-            return false;
-        }
-
-        if(is_array($value) && count($value) == 0){
+        if(ValueHelper::isEmpty($value)){
             return false;
         }
 

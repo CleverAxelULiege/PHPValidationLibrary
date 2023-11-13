@@ -3,6 +3,7 @@
 namespace App\Validation\Rules;
 
 use App\Helper\NumberHelper;
+use App\Validation\Rules\Parent\AbstractRule;
 
 class IntegerRule extends AbstractRule{
 

@@ -2,6 +2,8 @@
 
 namespace App\Validation\Rules;
 
+use App\Validation\Rules\Parent\AbstractRule;
+
 class BooleanRule extends AbstractRule{
     public function __construct()
     {

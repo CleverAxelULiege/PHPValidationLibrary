@@ -3,6 +3,7 @@
 namespace App\Validation\Rules;
 
 use App\Helper\StringHelper;
+use App\Validation\Rules\Parent\AbstractRule;
 
 class BelgianPhoneNumberRule extends AbstractRule{
 

@@ -2,7 +2,7 @@
 
 namespace App\Validation\Rules;
 use App\Validation\Rules\RuleException;
-use App\Validation\Rules\AbstractRuleThrowableException;
+use App\Validation\Rules\Parent\AbstractRuleThrowableException;
 
 class LengthRule extends AbstractRuleThrowableException
 {
@@ -13,12 +13,12 @@ class LengthRule extends AbstractRuleThrowableException
     {
         $this->maxLength = $maxLength;
         $this->minLength = $minLength;
+        $this->tryThrowRuleException();
     }
 
     public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->tryThrowRuleException();
 
         if(is_string($value) == false && is_array($value) == false){
             $this->setMessage("La donnée venant du champs " . $this->getPlaceHolder() . " n'est ni sous forme de texte, ni sous forme de liste.");

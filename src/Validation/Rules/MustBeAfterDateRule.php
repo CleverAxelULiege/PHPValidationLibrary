@@ -2,17 +2,25 @@
 
 namespace App\Validation\Rules;
 
-use App\Helper\DateTimeHelper;
 use DateTime;
+use App\Helper\ValueHelper;
+use App\Helper\DateTimeHelper;
+use App\Validation\Rules\Parent\AbstractRuleDateOperation;
 
 class MustBeAfterDateRule extends AbstractRuleDateOperation{
-
-
-    public function isruleValid(): bool
+    
+    public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->setMessage("Date au format invalide. Doit être sous chaine de charactères au format " . $this->format);
+        $valueFromAnotherInput = $this->getValueFromAnotherInput();
+
+        $this->setMessage("Date au format invalide dans le champs, " . $this->getPlaceHolder() .", doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($value)){
+            return false;
+        }
+
+        $this->setMessage("Date au format invalide, " . $this->getPlaceHolder($this->getInput())  . ", doit être sous une chaine de charactères au format " . $this->format);
+        if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
             return false;
         }
 
@@ -21,19 +29,19 @@ class MustBeAfterDateRule extends AbstractRuleDateOperation{
             return false;
         }
 
-        $this->messageInvalideDateFromInput($this->dateToCompare);
-        if($this->dateToCompare != null && DateTimeHelper::validateDate($this->dateToCompare, $this->format) == false && $this->isFromInput){
+        $this->messageInvalideDateFromInput($valueFromAnotherInput);
+        if(ValueHelper::isEmpty($valueFromAnotherInput) == false && DateTimeHelper::validateDate($valueFromAnotherInput, $this->format) == false && $this->getIsKey()){
             return false;
         }
 
-        if($this->isFromInput){
-            $this->setMessage("La date donnée venant du champs " . $this->getPlaceHolder() . ", " . $value . ", doit être plus tard dans le temps que la date que vous avez fournie depuis le champs " . $this->getPlaceHolder($this->keyDateToCompare) . ", dont la date est le " . $this->dateToCompare);
+        if($this->getIsKey()){
+            $this->setMessage("La date donnée venant du champs " . $this->getPlaceHolder() . ", " . $value . ", doit être plus tard dans le temps que la date que vous avez fournie depuis le champs " . $this->getPlaceHolder($this->getInput()) . ", dont la date est le " . $valueFromAnotherInput);
         }else{
-            $this->setMessage("La date donnée venant du champs " . $this->getPlaceHolder() . ", " . $value . ", doit être plus tard dans le temps que le " . $this->dateToCompare);
+            $this->setMessage("La date donnée venant du champs " . $this->getPlaceHolder() . ", " . $value . ", doit être plus tard dans le temps que le " . $valueFromAnotherInput);
         }
         
-        if($this->dateToCompare != null)
-            return DateTimeHelper::isFirstDateLaterThanSecond($value, $this->dateToCompare, $this->format);
+        if(ValueHelper::isEmpty($valueFromAnotherInput) == false)
+            return DateTimeHelper::isFirstDateLaterThanSecond($value, $valueFromAnotherInput, $this->format);
 
         return true;
     }

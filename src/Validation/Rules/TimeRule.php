@@ -3,6 +3,7 @@
 namespace App\Validation\Rules;
 
 use App\Helper\DateTimeHelper;
+use App\Validation\Rules\Parent\AbstractRule;
 
 class TimeRule extends AbstractRule{
     private string $format = "H:i";
