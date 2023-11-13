@@ -13,12 +13,12 @@ class LengthRule extends AbstractRuleThrowableException
     {
         $this->maxLength = $maxLength;
         $this->minLength = $minLength;
+        $this->tryThrowRuleException();
     }
 
     public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->tryThrowRuleException();
 
         if(is_string($value) == false && is_array($value) == false){
             $this->setMessage("La donnée venant du champs " . $this->getPlaceHolder() . " n'est ni sous forme de texte, ni sous forme de liste.");

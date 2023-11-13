@@ -1,12 +1,18 @@
 <?php
 
 use App\Helper\ValueHelper;
-use App\Validation\Rules\LengthRule;
-use App\Validation\Rules\MustBeAfterDateRuleCopy;
-use App\Validation\Rules\NullableRule;
-use App\Validation\Rules\RequiredIfRule;
-use App\Validation\Rules\RequiredRule;
 use App\Validation\Validator;
+use App\Validation\Rules\LengthRule;
+use App\Validation\Rules\NullableRule;
+use App\Validation\Rules\RequiredRule;
+use App\Validation\Rules\RequiredIfRule;
+use App\Validation\Rules\MustBeAfterDateRule;
+use App\Validation\Rules\MustBeAfterOrEqualsDateRule;
+use App\Validation\Rules\MustBeAfterTimeRule;
+use App\Validation\Rules\MustBeBeforeDateRule;
+use App\Validation\Rules\MustBeBeforeOrEqualsDateRule;
+use App\Validation\Rules\MustBeBeforeOrEqualsTimeRule;
+use App\Validation\Rules\MustBeBeforeTimeRule;
 
 require(__DIR__ . "/vendor/autoload.php");
 
@@ -29,19 +35,36 @@ require(__DIR__ . "/vendor/autoload.php");
 //     "another_phone_number" => "coucou",
 // ];
 
+// $validationRules = [
+//     "start_date" => [
+//         new NullableRule(),
+//         new MustBeBeforeOrEqualsDateRule("end_date", true),
+//     ],
+//     "end_date" => [
+//         new NullableRule(),
+//         new MustBeAfterOrEqualsDateRule("start_date", true),
+//     ]
+// ];
+
+// $data = [
+//     "start_date" => "2023/10/31",
+//     "end_date" => "2023/10/31"
+// ];
+
 $validationRules = [
-    "start_date" => [
-        new RequiredRule(),
+    "start_time" => [
+        new NullableRule(),
+        new MustBeAfterTimeRule("10:00"),
+        new MustBeBeforeOrEqualsTimeRule("end_time", true),
     ],
-    "end_date" => [
-        new RequiredRule(),
-        new MustBeAfterDateRuleCopy("start_date"),
+    "end_time" => [
+        new NullableRule(),
     ]
 ];
 
 $data = [
-    "start_date" => "2023/10/31",
-    "end_date" => "2023/10/22",
+    "start_time" => "15:00",
+    "end_time" => null
 ];
 
 $validator = new Validator($validationRules, $data);
@@ -52,7 +75,7 @@ if ($validator->validate()) {
     echo "</pre>";
 } else {
     echo "<pre>";
-    print_r($validator->getErrorValidationMessages());
+    var_dump($validator->getErrorValidationMessages());
     echo "</pre>";
 }
 

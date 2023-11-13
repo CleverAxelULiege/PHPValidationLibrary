@@ -74,6 +74,7 @@ class Validator
         $this->validValue = null;
 
         foreach ($validationRules as $validationRule) {
+
             if ($validationRule instanceof AbstractRuleDependentAnotherInput) {
                 $this->dependentFromAnotherInput($validationRule, $key);
             } else {
@@ -108,13 +109,7 @@ class Validator
 
     private  function dependentFromAnotherInput(AbstractRuleDependentAnotherInput $validationRule, string $key)
     {
-        if ($validationRule->getIsHardcoded() == false && isset($this->data[$validationRule->getInput()]) == false) {
-            $this->didValidationFailed = true;
-            $this->setErrorMessage($key, $validationRule->getMessage());
-            return;
-        }
-
-        $valueFromAnotherInput = $validationRule->getIsHardcoded() ? $validationRule->getInput() : $this->data[$validationRule->getInput()];
+        $valueFromAnotherInput = $validationRule->getIsKey() ? $this->data[$validationRule->getInput()] : $validationRule->getInput();
         $validationRule->setValueFromAnotherInput($valueFromAnotherInput);
 
         if ($validationRule->isRuleValid() == false) {

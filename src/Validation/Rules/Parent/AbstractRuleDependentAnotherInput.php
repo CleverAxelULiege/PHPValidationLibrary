@@ -13,7 +13,7 @@ abstract class AbstractRuleDependentAnotherInput extends AbstractRule{
     private mixed $valueFromAnotherInput;
     private bool $isRequired = false;
     private bool $needsToBeExcluded = false;
-    private bool $isHardCoded = false;
+    private bool $isKey = false;
 
     public function __construct(string $input, callable $callback = null)
     {
@@ -21,13 +21,13 @@ abstract class AbstractRuleDependentAnotherInput extends AbstractRule{
         $this->input = $input;
     }
 
-    protected function setIsHardCoded(bool $hardCoded){
-        $this->isHardCoded = $hardCoded;
+    protected function setIsKey(bool $isKey){
+        $this->isKey = $isKey;
         return $this;
     }
 
-    public function getIsHardcoded(){
-        return $this->isHardCoded;
+    public function getIsKey(){
+        return $this->isKey;
     }
 
     public function getValueFromAnotherInput(){
@@ -58,6 +58,9 @@ abstract class AbstractRuleDependentAnotherInput extends AbstractRule{
     }
 
     public function setValueFromAnotherInput(mixed $value){
+        if(is_string($value))
+            $value = trim($value);
+
         $this->valueFromAnotherInput = $value;
         return $this;
     }
