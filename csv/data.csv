@@ -1,0 +1,4 @@
+name,age,random,animal
+Bob,17,"test ,virgule,",chien
+Willy,34,"""test guillemet""","poisson rouge"
+Billy,25,"hello world",chat
