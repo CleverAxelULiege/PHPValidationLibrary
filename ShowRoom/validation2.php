@@ -12,7 +12,7 @@ use App\Validation\Rules\RequiredRule;
 use App\Validation\Validator;
 
 $data = [
-    "phone_number" => "",
+    "phone_number" => "043589412",
     "other_phone_number" => "test",
     "checkbox_must_accept_condition" => true,
 ];
@@ -21,13 +21,16 @@ $validationRules = [
     "phone_number" => [
         new NullableRule(),
         new BelgianPhoneNumberRule(),
+        new ExcludeIfRule("phone_number", function($ownValue){
+            return ValueHelper::isEmpty($ownValue);
+        })
     ],
     "other_phone_number" => [
         new NullableRule(),
-        new RequiredIfRule("phone_number", function($valueOtherPhoneNumber, $valuePhoneNumber){
+        new RequiredIfRule("phone_number", function($valuePhoneNumber){
             return ValueHelper::isEmpty($valuePhoneNumber);
         }),
-        new ExcludeIfRule("phone_number", function($valueOtherPhoneNumber, $valuePhoneNumber){
+        new ExcludeIfRule("phone_number", function($valuePhoneNumber){
             return ValueHelper::isEmpty($valuePhoneNumber) == false;
         }),
     ],
