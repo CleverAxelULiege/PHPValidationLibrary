@@ -33,7 +33,7 @@ class BelgianNationalNumberRule extends AbstractRule
             $today = date("Y/m/d");
             //21ième siècle
             if($this->isNationalNumberValid($value, true) && 
-                DateTimeHelper::isFirstDateSoonerOrEqualsThanSecond($this->getDateFromNationalNumber($value, true), $today)){
+                DateTimeHelper::isFirstDateSoonerOrEqualsThanSecond($this->getDateFromNationalNumber($value, true), $today, "Y/m/d")){
                 return true;
             }
 
