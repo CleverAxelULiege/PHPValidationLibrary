@@ -60,6 +60,8 @@ class Validator
 
     private function setErrorMessage(string $key, string $message)
     {
+        $this->didValidationFailed = true;
+        
         if (isset($this->errorValidationMessages[$key])) {
             array_push($this->errorValidationMessages[$key], $message);
         } else {
@@ -77,16 +79,13 @@ class Validator
 
         foreach ($validationRules as $validationRule) {
             if ($validationRule instanceof AbstractRuleDependentAnotherInput) {
-                if ($this->dependentFromAnotherInputAndisValid($validationRule, $key) == false) {
-                    break;
-                }
+                $this->dependentFromAnotherInput($validationRule, $key);
             } else {
-                if ($this->notDependentFromAnotherInputAndIsValid($validationRule, $key) == false) {
-                    break;
-                }
+                $this->notDependentFromAnotherInput($validationRule, $key);
+
             }
         }
-
+        
         if ($this->didValidationFailed == false && $this->needsToBeExcluded == false) {
             if (ValueHelper::isEmpty($this->validValue)) {
                 $this->validatedData[$key] = null;
@@ -96,47 +95,48 @@ class Validator
         }
     }
 
-    private  function dependentFromAnotherInputAndIsValid(AbstractRuleDependentAnotherInput $validationRule, string $key)
+    private  function dependentFromAnotherInput(AbstractRuleDependentAnotherInput $validationRule, string $key)
     {
+        //ternaire pour savoir si clé d'un tableau assoc ou une valeur
         $valueFromAnotherInput = $validationRule->getIsKey() ? $this->data[$validationRule->getInput()] : $validationRule->getInput();
         $validationRule->setValueFromAnotherInput($valueFromAnotherInput);
 
         if ($validationRule->isRuleValid() == false) {
-
+            //Si une valeur est Requise (Ex RequiredIfRule) mais que la valeur est vide, la validation a raté.
+            //Sinon si une règle dit que ça peut être NULL mais qu'il y a un input (ou que ça ne peut tout simplement ne pas être NULL), 
+            //je considère que la règle a été enfreinte et que la validation pour cette règle a raté. 
             if (($validationRule->getIsRequired() && ValueHelper::isEmpty($validationRule->getValue()))) {
-                $this->didValidationFailed = true;
                 $this->setErrorMessage($key, $validationRule->getMessage());
-            } else if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
-                $this->didValidationFailed = true;
+            } 
+            else if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
                 $this->setErrorMessage($key, $validationRule->getMessage());
-            } else if ($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) {
-                return false;
-            }
+            } 
         } else {
+            //une des règles a été validée on sauvegarde la valeur.
+            //Si une valeur n'a pas encore été assignée ou si c'est la règle a également pour rôle de cast la valeur on assigne à validValue
             if (is_null($this->validValue) || $validationRule->getShouldCastValue()) {
                 $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
             }
 
+            //Si a besoin d'être exclu via ExcludeIfRule ou une autre règle
             if ($validationRule->getNeedsToBeExcluded()) {
                 $this->needsToBeExcluded = true;
             }
         }
 
-        return true;
+        return false;
     }
 
-    private function notDependentFromAnotherInputAndIsValid(AbstractRule $validationRule, string $key)
+    private function notDependentFromAnotherInput(AbstractRule $validationRule, string $key)
     {
         //la règle n'est pas valide
         if ($validationRule->isRuleValid() == false) {
-            //si une règle dit que ça peut être NULL mais qu'il y a un input, je considère que la règle a été enfreinte et que la validation
-            //pour cette règle a raté. Sinon si ça peut être NULL et que l'input est vide, je casse la boucle et considère la règle comme non enfreinte.
+            //si une règle dit que ça peut être NULL mais qu'il y a un input (ou que ça ne peut tout simplement ne pas être NULL), 
+            //je considère que la règle a été enfreinte et que la validation pour cette règle a raté. 
             if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
                 $this->didValidationFailed = true;
                 $this->setErrorMessage($key, $validationRule->getMessage());
-            } else if ($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) {
-                return false;
-            }
+            } 
         } else {
             //une des règles a été validée on sauvegarde la valeur.
             //Si une valeur n'a pas encore été assignée ou si c'est la règle a également pour rôle de cast la valeur on assigne à validValue
@@ -144,8 +144,6 @@ class Validator
                 $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
             }
         }
-
-        return true;
     }
 
 

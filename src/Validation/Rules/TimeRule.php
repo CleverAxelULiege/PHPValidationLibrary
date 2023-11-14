@@ -6,7 +6,12 @@ use App\Helper\DateTimeHelper;
 use App\Validation\Rules\Parent\AbstractRule;
 
 class TimeRule extends AbstractRule{
-    private string $format = "H:i";
+    private string $format = "H:i:s";
+
+    public function __construct(string $format = "H:i")
+    {
+        $this->format = $format;
+    }
 
     public function isRuleValid(): bool
     {

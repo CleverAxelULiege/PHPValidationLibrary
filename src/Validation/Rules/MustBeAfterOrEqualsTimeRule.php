@@ -12,19 +12,10 @@ class MustBeAfterOrEqualsTimeRule extends MustBeAfterTimeRule{
         $value = $this->getValue();
         $valueFromAnotherInput = $this->getValueFromAnotherInput();
 
-        if($this->areBothTimesString($value, $valueFromAnotherInput) == false){
+        if($this->areBothTimesValids($value, $valueFromAnotherInput) == false){
             return false;
         }
 
-        $this->messageInvalideTime($value);
-        if(DateTimeHelper::validateDate($value, $this->format) == false){
-            return false;
-        }
-
-        $this->messageInvalideTimeFromInput($valueFromAnotherInput);
-        if(ValueHelper::isEmpty($valueFromAnotherInput) == false && DateTimeHelper::validateDate($valueFromAnotherInput, $this->format) == false && $this->getIsKey()){
-            return false;
-        }
 
         if($this->getIsKey()){
             $this->setMessage("L'heure donnée venant du champs " . $this->getPlaceHolder() . ", " . $value . ", doit être plus tard ou égal dans le temps que l'heure que vous avez fournie depuis le champs " . $this->getPlaceHolder($this->getInput()) . ", dont l'heure est " . $valueFromAnotherInput);
@@ -33,7 +24,7 @@ class MustBeAfterOrEqualsTimeRule extends MustBeAfterTimeRule{
         }
 
         if(ValueHelper::isEmpty($valueFromAnotherInput) == false)
-            return DateTimeHelper::isFirstTimeLaterOrEqualsThanSecond($value, $valueFromAnotherInput);
+            return DateTimeHelper::isFirstTimeLaterOrEqualsThanSecond($value, $valueFromAnotherInput, $this->getFormat());
 
         return true;
     }

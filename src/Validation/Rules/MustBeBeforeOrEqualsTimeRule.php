@@ -12,17 +12,7 @@ class MustBeBeforeOrEqualsTimeRule extends AbstractRuleTimeOperation{
         $value = $this->getValue();
         $valueFromAnotherInput = $this->getValueFromAnotherInput();
 
-        if($this->areBothTimesString($value, $valueFromAnotherInput) == false){
-            return false;
-        }
-
-        $this->messageInvalideTime($value);
-        if(DateTimeHelper::validateDate($value, $this->format) == false){
-            return false;
-        }
-
-        $this->messageInvalideTimeFromInput($valueFromAnotherInput);
-        if(ValueHelper::isEmpty($valueFromAnotherInput) == false && DateTimeHelper::validateDate($valueFromAnotherInput, $this->format) == false && $this->getIsKey()){
+        if($this->areBothTimesValids($value, $valueFromAnotherInput) == false){
             return false;
         }
 
@@ -33,7 +23,7 @@ class MustBeBeforeOrEqualsTimeRule extends AbstractRuleTimeOperation{
         }
 
         if(ValueHelper::isEmpty($valueFromAnotherInput) == false)
-            return DateTimeHelper::isFirstTimeSoonerOrEqualsThanSecond($value, $valueFromAnotherInput);
+            return DateTimeHelper::isFirstTimeSoonerOrEqualsThanSecond($value, $valueFromAnotherInput, $this->getFormat());
 
         return true;
     }

@@ -15,17 +15,7 @@ class MustBeBeforeOrEqualsDateRule extends AbstractRuleDateOperation
         $value = $this->getValue();
         $valueFromAnotherInput = $this->getValueFromAnotherInput();
 
-        if ($this->areBothDatesString($value, $valueFromAnotherInput) == false) {
-            return false;
-        }
-
-        $this->messageInvalideDate($value);
-        if (DateTimeHelper::validateDate($value, $this->format) == false) {
-            return false;
-        }
-
-        $this->messageInvalideDateFromInput($valueFromAnotherInput);
-        if (ValueHelper::isEmpty($valueFromAnotherInput) == false && DateTimeHelper::validateDate($valueFromAnotherInput, $this->format) == false && $this->getIsKey()) {
+        if($this->areBothDatesValids($value, $valueFromAnotherInput) == false){
             return false;
         }
 
@@ -36,7 +26,7 @@ class MustBeBeforeOrEqualsDateRule extends AbstractRuleDateOperation
         }
 
         if (ValueHelper::isEmpty($valueFromAnotherInput) == false)
-            return DateTimeHelper::isFirstDateSoonerOrEqualsThanSecond($value, $valueFromAnotherInput, $this->format);
+            return DateTimeHelper::isFirstDateSoonerOrEqualsThanSecond($value, $valueFromAnotherInput, $this->getFormat());
 
         return true;
     }

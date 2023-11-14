@@ -54,27 +54,9 @@ $validationRules = [
 ];
 
 $data = [
-    "start_date" => [1,2,3],
+    "start_date" => "2023/10/30",
     "end_date" => "2023/10/31"
 ];
-
-// $validationRules = [
-//     "start_time" => [
-//         new NullableRule(),
-//         new MustBeAfterTimeRule("10:00"),
-//         new MustBeBeforeOrEqualsTimeRule("end_time", true),
-//     ],
-//     "end_time" => [
-//         new RequiredRule(),
-//         new MustBeBeforeTimeRule("20:00"),
-//         new MustBeAfterTimeRule("start_time", true)
-//     ]
-// ];
-
-// $data = [
-//     "start_time" => "blablabla",
-//     "end_time" => "17:00"
-// ];
 
 $validator = new Validator($validationRules, $data);
 
