@@ -2,7 +2,6 @@
 
 namespace App\Validation\Rules;
 
-use DateTime;
 use App\Helper\StringHelper;
 use App\Helper\DateTimeHelper;
 use App\Validation\Rules\Parent\AbstractRule;

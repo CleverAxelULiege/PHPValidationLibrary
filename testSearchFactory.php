@@ -11,19 +11,4 @@ function testFactory(AbstractSearchFactory $abstractFactory){
 
 var_dump(testFactory(new SearchFactoryCSV("CHIEN", ["path" => "/csv/data.csv", "column" => "animal"])));
 
-// $data = [
-//     ["name", "age", "random", "animal"],
-//     ["Bob", 17, "test ,virgule,", "chien"],
-//     ["Willy", 34, "\"test guillemet\"", "poisson rouge"],
-//     ["Billy", 25, "hello world", "chat"],
-// ];
-
-//  $fileStream = fopen(__DIR__ . "/csv/data.csv", 'w');
- 
-//  foreach ($data as $fields) {
-//      fputcsv($fileStream, $fields);
-//  }
- 
-//  fclose($fileStream);
-
 ?>

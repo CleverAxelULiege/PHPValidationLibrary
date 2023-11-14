@@ -5,24 +5,27 @@ namespace App\Validation\Rules;
 use App\Validation\Rules\Parent\AbstractRule;
 
 class BooleanRule extends AbstractRule{
-    public function __construct()
+
+    private ?bool $valueExpected = null;
+
+    public function __construct(?bool $valueExpected = null)
     {
+        $this->valueExpected = $valueExpected;
         $this->setType("bool");
     }
 
     public function isRuleValid(): bool
     {
-        $this->setMessage("La valeur du champs ". $this->getPlaceHolder() ."  n'est pas une valeur booléenne correct.");
-        if(in_array($this->getValue(), ["1", "0", 1, 0, true, false, "true", "false"])){
-            return true;
+        $value = $this->getValue();
+        $this->setMessage("La valeur du champs ". $this->getPlaceHolder() ."  n'est pas la valeur booléenne expectée : " . ($this->valueExpected ? "TRUE" : "FALSE"));
+
+        $value = $value == "" ? false : true;
+        $this->setValue($value);
+
+        if($this->valueExpected != null && $value != $this->valueExpected){
+            return false;
         }
 
-        $value = true;
-        if($this->getValue() == ""){
-            $value = false;
-        }
-        
-        $this->setValue($value);
         return in_array($value, ["1", "0", 1, 0, true, false, "true", "false"]);
     }
 }

@@ -43,19 +43,21 @@ abstract class AbstractRuleTimeOperation extends AbstractRuleDependentAnotherInp
         $this->setMessage("L'heure (" . ($time == null ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder($this->timeToCompare) . " est invalide.");
     }
 
-    private function areBothTimesString(mixed $value, mixed $valueFromAnotherInput){
+    private function areBothTimesString(mixed $value, mixed $valueFromAnotherInput) : bool{
         $this->setMessage("Heure au format invalide dans le champs, " . $this->getPlaceHolder() .", doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($value)){
             return false;
         }
-
+        
         $this->setMessage("Heure au format invalide, " . $this->getPlaceHolder($this->getInput())  . ", doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
             return false;
         }
+
+        return true;
     }
 
-    protected function areBothTimesValids(mixed $value, mixed $valueFromAnotherInput){
+    protected function areBothTimesValids(mixed $value, mixed $valueFromAnotherInput) : bool{
         if($this->areBothTimesString($value, $valueFromAnotherInput) == false){
             return false;
         }

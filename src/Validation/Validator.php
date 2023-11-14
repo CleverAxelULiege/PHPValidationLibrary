@@ -103,12 +103,10 @@ class Validator
 
         if ($validationRule->isRuleValid() == false) {
             //Si une valeur est Requise (Ex RequiredIfRule) mais que la valeur est vide, la validation a raté.
-            //Sinon si une règle dit que ça peut être NULL mais qu'il y a un input (ou que ça ne peut tout simplement ne pas être NULL), 
-            //je considère que la règle a été enfreinte et que la validation pour cette règle a raté. 
             if (($validationRule->getIsRequired() && ValueHelper::isEmpty($validationRule->getValue()))) {
                 $this->setErrorMessage($key, $validationRule->getMessage());
-            } 
-            else if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
+            }
+            else if (ValueHelper::isEmpty($validationRule->getValue()) == false && $validationRule->getIsRequired() == false) {
                 $this->setErrorMessage($key, $validationRule->getMessage());
             } 
         } else {
@@ -180,6 +178,24 @@ class Validator
             if ($isRequired && $isNullable) {
                 throw new LogicException("You can't have a NullableRule and a RequiredRule in the same list of rules.");
             }
+        }
+
+        if($isRequired == false && $isNullable == false){
+            $this->canBeNullable = true;
+        }
+    }
+
+    public static function rawDisplay(Validator $validator){
+        if ($validator->validate()) {
+            echo "VALIDE <br>";
+            echo "<pre>";
+            var_dump($validator->getValidatedData());
+            echo "</pre>";
+        } else {
+            echo "NON VALIDE <br>";
+            echo "<pre>";
+            var_dump($validator->getErrorValidationMessages());
+            echo "</pre>";
         }
     }
 }

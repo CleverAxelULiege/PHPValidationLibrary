@@ -31,7 +31,7 @@ abstract class AbstractRuleDependentAnotherInput extends AbstractRule{
     }
 
     public function getValueFromAnotherInput(){
-        return $this->valueFromAnotherInput;
+        return $this->valueFromAnotherInput ?? "";
     }
 
     protected function setIsRequired(bool $isRequired){
