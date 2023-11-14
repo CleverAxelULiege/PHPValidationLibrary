@@ -17,46 +17,46 @@ use App\Validation\Rules\MustBeBeforeTimeRule;
 
 require(__DIR__ . "/vendor/autoload.php");
 
-$validationRules = [
-    "phone_number" => [
-        new NullableRule(),
-        new LengthRule(10, 0),
-        new ExcludeIfRule("phone_number", function($value, $valueFromAnotherInput){
-            return ValueHelper::isEmpty($value);
-        }),
-    ],
-    "another_phone_number" => [
-        new NullableRule(),
-        new RequiredIfRule("phone_number", function($value, $valueFromAnotherInput){
-            return ValueHelper::isEmpty($valueFromAnotherInput);
-        }),
-        new ExcludeIfRule("phone_number", function($value, $valueFromAnotherInput){
-            return ValueHelper::isEmpty($valueFromAnotherInput) == false;
-        }),
-    ],
-];
-
-
-$data = [
-    "phone_number" => "",
-    "another_phone_number" => "0515",
-];
-
 // $validationRules = [
-//     "start_date" => [
+//     "phone_number" => [
 //         new NullableRule(),
-//         new MustBeBeforeOrEqualsDateRule("end_date", true),
+//         new LengthRule(10, 0),
+//         new ExcludeIfRule("phone_number", function($value, $valueFromAnotherInput){
+//             return ValueHelper::isEmpty($value);
+//         }),
 //     ],
-//     "end_date" => [
+//     "another_phone_number" => [
 //         new NullableRule(),
-//         new MustBeAfterOrEqualsDateRule("start_date", true),
-//     ]
+//         new RequiredIfRule("phone_number", function($value, $valueFromAnotherInput){
+//             return ValueHelper::isEmpty($valueFromAnotherInput);
+//         }),
+//         new ExcludeIfRule("phone_number", function($value, $valueFromAnotherInput){
+//             return ValueHelper::isEmpty($valueFromAnotherInput) == false;
+//         }),
+//     ],
 // ];
+
 
 // $data = [
-//     "start_date" => "2023/10/31",
-//     "end_date" => "2023/10/31"
+//     "phone_number" => "",
+//     "another_phone_number" => "0515",
 // ];
+
+$validationRules = [
+    "start_date" => [
+        new NullableRule(),
+        new MustBeBeforeOrEqualsDateRule("end_date", true),
+    ],
+    "end_date" => [
+        new NullableRule(),
+        new MustBeAfterOrEqualsDateRule("start_date", true),
+    ]
+];
+
+$data = [
+    "start_date" => [1,2,3],
+    "end_date" => "2023/10/31"
+];
 
 // $validationRules = [
 //     "start_time" => [
@@ -72,7 +72,7 @@ $data = [
 // ];
 
 // $data = [
-//     "start_time" => "15:00",
+//     "start_time" => "blablabla",
 //     "end_time" => "17:00"
 // ];
 

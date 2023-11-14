@@ -77,11 +77,13 @@ class Validator
 
         foreach ($validationRules as $validationRule) {
             if ($validationRule instanceof AbstractRuleDependentAnotherInput) {
-                if($this->dependentFromAnotherInputAndisValid($validationRule, $key) == false)
+                if ($this->dependentFromAnotherInputAndisValid($validationRule, $key) == false) {
                     break;
+                }
             } else {
-                if($this->notDependentFromAnotherInputAndIsValid($validationRule, $key) == false)
+                if ($this->notDependentFromAnotherInputAndIsValid($validationRule, $key) == false) {
                     break;
+                }
             }
         }
 
@@ -100,11 +102,14 @@ class Validator
         $validationRule->setValueFromAnotherInput($valueFromAnotherInput);
 
         if ($validationRule->isRuleValid() == false) {
-            if ($validationRule->getIsRequired() && ValueHelper::isEmpty($validationRule->getValue())) {
+
+            if (($validationRule->getIsRequired() && ValueHelper::isEmpty($validationRule->getValue()))) {
                 $this->didValidationFailed = true;
                 $this->setErrorMessage($key, $validationRule->getMessage());
-            }
-            else if($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false){
+            } else if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
+                $this->didValidationFailed = true;
+                $this->setErrorMessage($key, $validationRule->getMessage());
+            } else if ($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) {
                 return false;
             }
         } else {
@@ -112,7 +117,7 @@ class Validator
                 $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
             }
 
-            if($validationRule->getNeedsToBeExcluded()){
+            if ($validationRule->getNeedsToBeExcluded()) {
                 $this->needsToBeExcluded = true;
             }
         }
