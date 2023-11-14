@@ -11,13 +11,6 @@ abstract class AbstractRule
     private ?string $type = null;
     private ?string $key = null;
 
-    
-    
-    public function __invoke() : bool
-    {
-        return $this->isRuleValid();
-    }
-    
     public abstract function isRuleValid(): bool;
 
     public function getMessage(): string

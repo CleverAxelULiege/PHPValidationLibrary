@@ -23,7 +23,6 @@ class BooleanRule extends AbstractRule{
         }
         
         $this->setValue($value);
-        // return true;
         return in_array($value, ["1", "0", 1, 0, true, false, "true", "false"]);
     }
 }

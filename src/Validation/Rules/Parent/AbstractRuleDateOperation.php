@@ -47,4 +47,18 @@ abstract class AbstractRuleDateOperation extends AbstractRuleDependentAnotherInp
     {
         $this->setMessage("La date (" . ($date == null ? "INCONNUE" : $date) . ") venant du champs " . $this->getPlaceHolder($this->dateToCompare) . " est invalide.");
     }
+
+    protected function areBothDatesString(mixed $value, mixed $valueFromAnotherInput){
+        $this->setMessage("Date au format invalide dans le champs, " . $this->getPlaceHolder() .", doit être sous une chaine de charactères au format " . $this->format);
+        if(!is_string($value)){
+            return false;
+        }
+
+        $this->setMessage("Date au format invalide, " . $this->getPlaceHolder($this->getInput())  . ", doit être sous une chaine de charactères au format " . $this->format);
+        if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
+            return false;
+        }
+
+        return true;
+    }
 }

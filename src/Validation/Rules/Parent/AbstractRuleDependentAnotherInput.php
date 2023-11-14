@@ -51,7 +51,7 @@ abstract class AbstractRuleDependentAnotherInput extends AbstractRule{
     }
 
     /**
-     * Peut renvoyer une valeur hard codée ou la clef d'un tableau dépend ce qui a été passé dans le constructeur
+     * Peut renvoyer une valeur hard codée ou la clef d'un tableau dépend de ce qui a été passé dans le constructeur
      */
     public function getInput(){
         return $this->input;

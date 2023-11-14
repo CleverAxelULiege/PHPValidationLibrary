@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Validation\Rules;
-use App\Validation\Rules\RuleException;
-use App\Validation\Rules\Parent\AbstractRuleThrowableException;
 
-class LengthRule extends AbstractRuleThrowableException
+use App\Validation\Rules\Parent\AbstractRule;
+use App\Validation\Rules\RuleException;
+
+class LengthRule extends AbstractRule
 {
     private ?int $maxLength;
     private int $minLength;

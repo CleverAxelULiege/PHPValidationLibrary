@@ -12,11 +12,7 @@ class RequiredRule extends AbstractRule{
     {
         $value = $this->getValue();
         $this->setMessage("Le champs, " . $this->getPlaceHolder() . ", est obligatoire");
-        
-        if(ValueHelper::isEmpty($value)){
-            return false;
-        }
 
-        return true;
+        return ValueHelper::isEmpty($value) == false;
     }
 }

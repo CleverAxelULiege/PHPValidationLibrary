@@ -12,13 +12,7 @@ class MustBeAfterOrEqualsTimeRule extends MustBeAfterTimeRule{
         $value = $this->getValue();
         $valueFromAnotherInput = $this->getValueFromAnotherInput();
 
-        $this->setMessage("Heure au format invalide dans le champs, " . $this->getPlaceHolder() .", doit être sous une chaine de charactères au format " . $this->format);
-        if(!is_string($value)){
-            return false;
-        }
-
-        $this->setMessage("Heure au format invalide, " . $this->getPlaceHolder($this->getInput())  . ", doit être sous une chaine de charactères au format " . $this->format);
-        if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
+        if($this->areBothTimesString($value, $valueFromAnotherInput) == false){
             return false;
         }
 

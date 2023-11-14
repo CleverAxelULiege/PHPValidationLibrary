@@ -25,9 +25,6 @@ abstract class AbstractRuleTimeOperation extends AbstractRuleDependentAnotherInp
         if ($this->getIsKey() == false && DateTimeHelper::validateTime($this->timeToCompare, $this->format) == false) {
             throw new RuleException("The time (" . $this->timeToCompare . ") given for comparison is invalid. Is it a key or a hardcoded value and did you precise it ?");
         }
-        // if ($this->getIsKey() && is_null($this->keytimeToCompare)) {
-        //     throw new RuleException("No key given with the input");
-        // }
     }
 
     protected function messageInvalideTime(?string $time)
@@ -37,5 +34,17 @@ abstract class AbstractRuleTimeOperation extends AbstractRuleDependentAnotherInp
     protected function messageInvalideTimeFromInput(?string $time)
     {
         $this->setMessage("L'heure (" . ($time == null ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder($this->timeToCompare) . " est invalide.");
+    }
+
+    protected function areBothTimesString(mixed $value, mixed $valueFromAnotherInput){
+        $this->setMessage("Heure au format invalide dans le champs, " . $this->getPlaceHolder() .", doit être sous une chaine de charactères au format " . $this->format);
+        if(!is_string($value)){
+            return false;
+        }
+
+        $this->setMessage("Heure au format invalide, " . $this->getPlaceHolder($this->getInput())  . ", doit être sous une chaine de charactères au format " . $this->format);
+        if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
+            return false;
+        }
     }
 }

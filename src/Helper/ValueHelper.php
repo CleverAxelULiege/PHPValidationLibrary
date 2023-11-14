@@ -4,7 +4,7 @@ namespace App\Helper;
 
 class ValueHelper{
     public static function isEmpty(mixed $value){
-        if(isset($value) == false || is_null($value)){
+        if(isset($value) == false){
             return true;
         }
 
