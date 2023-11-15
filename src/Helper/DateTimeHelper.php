@@ -104,5 +104,4 @@ class DateTimeHelper
 
         return $formatFirstTime->getTimestamp() >= $formatSecondTime->getTimestamp();
     }
-
 }

@@ -11,3 +11,9 @@
     </ul>
 </body>
 </html>
+
+<?php 
+use App\Helper\DateTimeHelper;
+require(__DIR__ . "/vendor/autoload.php");
+DateTimeHelper::addZerosWhenNeeded("Y/m/d", "2023/1/1");
+?>

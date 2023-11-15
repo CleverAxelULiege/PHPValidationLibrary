@@ -13,7 +13,7 @@ $data = [
     "start_date" => "2023/10/31",
     "end_date" => "2023/12/31",
     "start_time" => "08:00",
-    "end_time" => "19:00",
+    "end_time" => "09:00",
 ];
 
 $validationRules = [
