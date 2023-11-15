@@ -19,22 +19,40 @@ $data = [
 $validationRules = [
     "start_date" => [
         new NullableRule(),
-        new MustBeBeforeOrEqualsDateRule("end_date", true),
+        new MustBeBeforeOrEqualsDateRule("end_date", isKey: true), //start_date doit commencer avant ou être égal à end_date et ici le booléen "isKey" lui précise
+        //que c'est une valeur venant d'une autre clef et qu'il doit aller la chercher et non entrée en brut.
     ],
     "end_date" => [
         new NullableRule(),
-        new MustBeAfterOrEqualsDateRule("start_date", true),
+        new MustBeAfterOrEqualsDateRule("start_date", isKey: true),
     ],
     "start_time" => [
         new NullableRule(),
-        new MustBeAfterOrEqualsTimeRule("08:00"),
-        new MustBeBeforeOrEqualsTimeRule("end_time", true),
+        new MustBeAfterOrEqualsTimeRule("08:00", isKey: false), //ici le temps doit commencer au moins à partir de 08:00. Je lui dis que c'est une valeur "hardcodée" 
+        //en mettant le isKey à FALSE et qu'il n'est pas obligé d'aller rechercher une valeur en fonction d'une quelconque clef.
+        new MustBeBeforeOrEqualsTimeRule("end_time", isKey: true),
     ],
     "end_time" => [
         new NullableRule(),
-        new MustBeBeforeOrEqualsTimeRule("20:00"),
-        new MustBeAfterOrEqualsTimeRule("start_time", true),
+        new MustBeBeforeOrEqualsTimeRule("20:00"), //Par défaut isKey est à FALSE donc on peut ne pas lui spécifier lorsqu'une valeur est "hardcodée".
+        new MustBeAfterOrEqualsTimeRule("start_time", isKey: true),
     ]
 ];
 
 Validator::rawDisplay(new Validator($validationRules, $data));
+//OUTPUT DONNÉES VALIDES :
+// VALIDE
+
+// array(4) {
+//   ["start_date"]=>
+//   string(10) "2023/10/31"
+
+//   ["end_date"]=>
+//   string(10) "2023/12/31"
+
+//   ["start_time"]=>
+//   string(5) "08:00"
+
+//   ["end_time"]=>
+//   string(5) "09:00"
+// }

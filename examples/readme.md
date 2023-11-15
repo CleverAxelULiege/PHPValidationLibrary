@@ -3,6 +3,4 @@ Un qui lui spécifie les règles à appliquer dans un tableau associatif et un a
 
 Les tableaux sont mis en communs via une clef commune.
 
-Le tableau de règles peuvent être NULL ou REQUIS par défaut ils sont à NULL
-
 Voir validation1.php, validation2.php ou validation3.php pour voir différents scénarios d'applications

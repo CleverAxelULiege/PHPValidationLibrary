@@ -12,22 +12,23 @@ use App\Validation\Validator;
 $data = [
     "firstname" => "Billy",
     "lastname" => "Bob",
-    "birthdate" => "1942/01/22",
     "national_number" => "42.01.22.051-81",
 ];
 
 $validationRules = [
     "firstname" => [
-        new RequiredRule(),
-        new LengthRule(100),
+        new RequiredRule(), //doit être requis si une chaine de charactères est uniquement composée d'espaces il le considérera quand même comme vide.
+        new LengthRule(100, 3), 
+        //doit avoir au moins une longueur max de 100 et min de 3.
     ],
     "lastname" => [
         new RequiredRule(),
-        new LengthRule(100),
+        new LengthRule(100, 3),
     ],
     "birthdate" => [
-        new NullableRule(),
-        new MustBeBeforeOrEqualsDateRule(date("Y/m/d")), //doit être avant aujourd'hui
+        new NullableRule(), //peut être NULL/optionnel
+        new MustBeBeforeOrEqualsDateRule(dateToCompare: date("Y/m/d"), format: "Y/m/d"), 
+        //doit être avant ou égal à aujourd'hui, possibilité de spécifier le format dans le constructeur par défaut à Y/m/d
     ],
     "national_number" => [
         new RequiredRule(),
@@ -36,3 +37,19 @@ $validationRules = [
 ];
 
 Validator::rawDisplay(new Validator($validationRules, $data));
+//OUTPUT DONNÉES VALIDES :
+// VALIDE
+
+// array(4) {
+//   ["firstname"]=>
+//   string(5) "Billy"
+
+//   ["lastname"]=>
+//   string(3) "Bob"
+
+//   ["birthdate"]=>
+//   NULL
+
+//   ["national_number"]=>
+//   string(15) "42.01.22.051-81"
+// }
