@@ -27,7 +27,7 @@ $validationRules = [
     ],
     "birthdate" => [
         new NullableRule(),
-        new MustBeBeforeOrEqualsDateRule(date("Y/m/d")),
+        new MustBeBeforeOrEqualsDateRule(date("Y/m/d")), //doit être avant aujourd'hui
     ],
     "national_number" => [
         new RequiredRule(),
