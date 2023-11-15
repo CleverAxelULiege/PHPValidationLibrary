@@ -10,6 +10,7 @@
         <li><a href="./examples/validation1.php">Validation 1</a></li>
         <li><a href="./examples/validation2.php">Validation 2</a></li>
         <li><a href="./examples/validation3.php">Validation 3</a></li>
+        <li><a href="./examples/validation4.php">Validation 4</a></li>
     </ul>
 </body>
 </html>

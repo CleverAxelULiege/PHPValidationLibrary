@@ -26,6 +26,10 @@ class MaxRule extends AbstractRule{
         if((float)$value > $this->maxValue)
             return false;
 
+        if(NumberHelper::isInteger($value)){
+            $this->setType("int");
+        }
+
         return true;
     }
 }

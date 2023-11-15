@@ -3,4 +3,4 @@ Un qui lui spécifie les règles à appliquer dans un tableau associatif et un a
 
 Les tableaux sont mis en communs via une clef commune.
 
-Voir validation1.php, validation2.php ou validation3.php pour voir différents scénarios d'applications
+Voir validation1.php, validation2.php, validation3.php, validation4.php pour voir différents scénarios d'applications

@@ -26,6 +26,7 @@ class BooleanRule extends AbstractRule{
             return false;
         }
 
+        $this->setMessage("La valeur du champs ". $this->getPlaceHolder() ."  n'est pas une valeur booléenne correcte");
         return in_array($value, ["1", "0", 1, 0, true, false, "true", "false"]);
     }
 }

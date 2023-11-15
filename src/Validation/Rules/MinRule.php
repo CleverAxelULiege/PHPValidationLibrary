@@ -28,6 +28,10 @@ class MinRule extends AbstractRule{
             return false;
         }
 
+        if(NumberHelper::isInteger($value)){
+            $this->setType("int");
+        }
+
         return true;
     }
 }
