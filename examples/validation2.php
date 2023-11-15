@@ -12,7 +12,7 @@ use App\Validation\Rules\RequiredRule;
 use App\Validation\Validator;
 
 $data = [
-    "phone_number" => "                            ",
+    "phone_number" => "",
     "other_phone_number" => "0123456789",
     "checkbox_must_accept_condition" => "true",
 ];
@@ -45,7 +45,7 @@ $validationRules = [
     ]
 ];
 
-Validator::rawDisplay(new Validator($validationRules, $data));
+Validator::rawDisplay(new Validator($validationRules, $_POST));
 //OUTPUT DONNÉES VALIDES :
 // VALIDE
 

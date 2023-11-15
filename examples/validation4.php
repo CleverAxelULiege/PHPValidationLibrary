@@ -14,7 +14,7 @@ use App\Validation\Validator;
 
 $data = [
     "integer" => "50",
-    "float" => "50.5",
+    "float" => "50",
 ];
 
 $validationRules = [
@@ -26,7 +26,7 @@ $validationRules = [
     "float" => [
         new RequiredRule(),
         new FloatRule(), //devra être obligatoirement un FLOAT ou un INT
-        new MinRule(50),
+        new MinRule(45),
     ]
 ];
 

@@ -17,12 +17,12 @@ class BooleanRule extends AbstractRule{
     public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->setMessage("La valeur du champs ". $this->getPlaceHolder() ."  n'est pas la valeur booléenne expectée : " . ($this->valueExpected ? "TRUE" : "FALSE"));
-
+        
         $value = $value == "" ? false : true;
         $this->setValue($value);
-
-        if($this->valueExpected != null && $value != $this->valueExpected){
+        
+        $this->setMessage("La valeur du champs ". $this->getPlaceHolder() ."  n'est pas la valeur booléenne expectée : " . ($this->valueExpected ? "TRUE" : "FALSE"));
+        if($this->valueExpected != null && (bool)$value != $this->valueExpected){
             return false;
         }
 

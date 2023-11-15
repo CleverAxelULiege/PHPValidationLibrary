@@ -14,3 +14,7 @@
     </ul>
 </body>
 </html>
+
+<?php 
+var_dump(mb_strlen("Éléphant"));
+?>

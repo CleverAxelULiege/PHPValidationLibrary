@@ -27,7 +27,7 @@ class LengthRule extends AbstractRule
         }
 
         if (is_string($value)) {
-            $stringLength = strlen($value);
+            $stringLength = mb_strlen($value);
 
             if($stringLength < $this->minLength){
                 $this->setMessage("La longueur du texte venant du champs :" . $this->getKey() . ", doit être supérieur ou égal à " . $this->minLength);

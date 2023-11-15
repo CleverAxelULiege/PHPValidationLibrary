@@ -20,7 +20,7 @@ class BelgianNationalNumberRule extends AbstractRule
         if (!is_string($value))
             return false;
 
-        if (strlen($value) != 11 || !is_numeric($value)) {
+        if (mb_strlen($value) != 11 || !is_numeric($value)) {
             return false;
         }
 
