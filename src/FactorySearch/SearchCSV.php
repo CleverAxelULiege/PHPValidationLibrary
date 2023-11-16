@@ -12,7 +12,11 @@ class SearchCSV extends AbstractSearcher
 
     public function isSearchSuccessfull(): bool
     {
-        $path = $this->getBasePath() . $this->getOptions("path") ?? "";
+        if($this->getOptions("path") == null){
+            throw new Exception("The key \"path\" must be precised.");
+        }
+        
+        $path = $this->getBasePath() . $this->getOptions("path");
         if (file_exists($path) == false) {
             throw new Exception("File does not exist with the path " . $path);
         }
@@ -22,7 +26,12 @@ class SearchCSV extends AbstractSearcher
 
         try {
             $handle = fopen($path, "r");
-            $columnNames = fgetcsv($handle);
+            $columnNames = [];
+
+            if(is_null($specificColumn) == false){
+                $columnNames = fgetcsv($handle);
+            }
+
             $index = null;
 
             if ($specificColumn != null) {

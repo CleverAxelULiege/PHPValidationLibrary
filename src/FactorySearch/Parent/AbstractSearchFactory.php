@@ -7,19 +7,30 @@ abstract class AbstractSearchFactory {
     private ?string $valueToSearch;
     private array $options = [];
 
-    public function __construct(?string $valueToSearch, array $options = [])
+    public function __construct(?string $valueToSearch = null, array $options = [])
     {
         $this->valueToSearch = $valueToSearch;
         $this->options = $options;
     }
 
+    
     public abstract function createSearcher() : SearcherInterface;
-
-    protected function getOptions(){
+    
+    public function getOptions(){
         return $this->options;
     }
-
-    protected function getValueToSearch(){
+    
+    public function getValueToSearch(){
         return $this->valueToSearch;
+    }
+
+    public function setValueToSearch(string $valueToSearch){
+        $this->valueToSearch = $valueToSearch;
+        return $this;
+    }
+
+    public function setOptions(array $options){
+        $this->options = $options;
+        return $this;
     }
 }

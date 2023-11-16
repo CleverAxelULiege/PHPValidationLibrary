@@ -7,7 +7,7 @@ abstract class AbstractSearcher implements SearcherInterface{
     private ?string $valueToSearch;
     private string $basePath = __DIR__ . "/../../../";
     
-    public function __construct(?string $valueToSearch, array &$options)
+    public function __construct(?string $valueToSearch = null, array &$options = [])
     {
         $this->options = $options;
         $this->valueToSearch = $valueToSearch;
@@ -15,7 +15,7 @@ abstract class AbstractSearcher implements SearcherInterface{
 
     protected function getOptions(?string $key = null){
         if(is_null($key)){
-            return $this->options;
+            return $this->options ?? null;
         }
 
         return $this->options[$key] ?? null;
