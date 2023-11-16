@@ -74,7 +74,7 @@ class SearchDatabase extends AbstractSearcher{
         }
 
         if(!in_array($column, $database->getColumnsFromTable($table))){
-            throw new BadMethodCallException("The column given ($column) doesn't exist in the database " . $database::class);
+            throw new BadMethodCallException("The column given ($column) doesn't exist in the database " . $database::class . " or in the table $table");
         }
     }
 }
