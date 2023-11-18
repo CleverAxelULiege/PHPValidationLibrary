@@ -27,8 +27,6 @@ class Validator
     private bool $canBeNullable = false;
     private bool $needsToBeExcluded = false;
 
-    private bool $requiredIfRuleExist = false;
-    private bool $isRequiredDynamically = false;
     private bool $shouldIgnoreOtherRules = false;
 
     /**
@@ -45,10 +43,9 @@ class Validator
         $this->setAllValuesAndKeys();
 
         foreach ($this->validationRulesWithKey as $key => $validationRules) {
-
-            $this->isRequiredDynamically = false;
-            $this->requiredIfRuleExist = false;
             $this->shouldIgnoreOtherRules = false;
+            $this->validValue = null;
+            $this->needsToBeExcluded = false;
 
             usort($validationRules, function (AbstractRule $a, AbstractRule $b) {
                 return $a->getPriority() - $b->getPriority();
@@ -89,9 +86,6 @@ class Validator
      */
     private function executeValidationRules(array &$validationRules, string $key)
     {
-        $this->validValue = null;
-        $this->needsToBeExcluded = false;
-        // var_dump($this->canBeNullable);
         foreach ($validationRules as $validationRule) {
             if ($validationRule instanceof AbstractRuleDependentAnotherInput) {
                 $this->dependentFromAnotherInput($validationRule, $key);
@@ -116,10 +110,9 @@ class Validator
         $validationRule->setValueFromAnotherInput($valueFromAnotherInput);
 
         if ($validationRule->isRuleValid() == false) {
-            $this->setErrorMessage($key, $validationRule->getMessage());
-
-            if ($validationRule instanceof RequiredIfRule) {
-                $this->isRequiredIf($validationRule);
+            
+            if (!($validationRule instanceof RequiredIfRule && $this->checkIfNeedToBeRequiredDynamically($validationRule) || $validationRule instanceof ExcludeIfRule)) {
+                $this->setErrorMessage($key, $validationRule->getMessage());
             }
 
         } else {
@@ -173,13 +166,14 @@ class Validator
         }
     }
 
-    private function isRequiredIf(RequiredIfRule $rule)
+    private function checkIfNeedToBeRequiredDynamically(RequiredIfRule $rule)
     {
-        if(!$rule->getIsRequired()){
-            $this->shouldIgnoreOtherRules = true;
-            $this->didValidationFailed = false;
-        }else{
+        if($rule->getIsRequired()){
             $this->canBeNullable = false;
+            return false;
+        }else{
+            $this->shouldIgnoreOtherRules = true;
+            return true;
         }
     }
 
@@ -191,6 +185,7 @@ class Validator
     {
         $isRequired = false;
         $isNullable = false;
+        $isRequirefIf = false;
 
         foreach ($validationRules as $validationRule) {
             if ($validationRule instanceof NullableRule)
@@ -198,7 +193,7 @@ class Validator
             else if ($validationRule instanceof RequiredRule)
                 $isRequired = true;
             else if ($validationRule instanceof RequiredIfRule)
-                $this->requiredIfRuleExist = true;
+                $isRequirefIf = true;
 
 
             $this->canBeNullable = $isNullable;
@@ -207,12 +202,12 @@ class Validator
                 throw new LogicException("You can't have a NullableRule and a RequiredRule in the same list of rules.");
             }
 
-            if ($isRequired && $this->requiredIfRuleExist) {
+            if ($isRequired && $isRequirefIf) {
                 throw new LogicException("You can't have a RequiredIfRule and a RequiredRule in the same list of rules.");
             }
         }
 
-        //default to the same as a NullableRule
+        //sera par défaut à NullableRule si RequiredRule ou NullableRule n'est pas précisé.
         if ($isRequired == false && $isNullable == false) {
             $this->canBeNullable = true;
         }

@@ -43,7 +43,7 @@ class RequiredIfRule extends AbstractRuleDependentAnotherInput{
                 $this->isRequired = call_user_func($this->callback, $value, $valueFromAnotherInput);
             break;
         }
-
+        
         return $this->isRequired && !ValueHelper::isEmpty($value);
     }
 }
