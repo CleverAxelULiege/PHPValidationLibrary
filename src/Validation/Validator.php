@@ -18,7 +18,7 @@ class Validator
      */
     private array $validationRulesWithKey;
     private array $data;
-
+    private ?array $placeHolders;
     private array $errorValidationMessages = [];
     private array $validatedData = [];
     private mixed $validValue = null;
@@ -32,10 +32,11 @@ class Validator
     /**
      * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
      */
-    public function __construct(array $validationRulesWithKey, array $data)
+    public function __construct(array $validationRulesWithKey, array $data, array $placeHolders = null)
     {
         $this->validationRulesWithKey = $validationRulesWithKey;
         $this->data = $data;
+        $this->placeHolders = $placeHolders;
     }
 
     public function validate()
@@ -108,13 +109,16 @@ class Validator
         //ternaire pour savoir si clé d'un tableau assoc ou une valeur
         $valueFromAnotherInput = $validationRule->getIsKey() ? $this->data[$validationRule->getInput()] : $validationRule->getInput();
         $validationRule->setValueFromAnotherInput($valueFromAnotherInput);
-
         if ($validationRule->isRuleValid() == false) {
-            
-            if (!($validationRule instanceof RequiredIfRule && $this->checkIfNeedToBeRequiredDynamically($validationRule) || $validationRule instanceof ExcludeIfRule)) {
-                $this->setErrorMessage($key, $validationRule->getMessage());
-            }
 
+            if (!($validationRule instanceof RequiredIfRule && $this->checkIfNeedToBeRequiredDynamically($validationRule) || $validationRule instanceof ExcludeIfRule)) {
+                $message = $this->replacePlaceHolder($key, $validationRule->getMessage(), $validationRule->getPlaceHolder());
+
+                if ($validationRule->getIsKey())
+                    $message = $this->replacePlaceHolder($validationRule->getInput(), $message, $validationRule->getPlaceHolder($validationRule->getInput()));
+
+                $this->setErrorMessage($key, $message);
+            }
         } else {
             //une des règles a été validée on sauvegarde la valeur.
             //Si une valeur n'a pas encore été assignée ou si c'est la règle a également pour rôle de cast la valeur on assigne à validValue
@@ -135,14 +139,13 @@ class Validator
         //la règle n'est pas valide
         if ($validationRule->isRuleValid() == false) {
 
-            if(!$this->shouldIgnoreOtherRules){
+            if (!$this->shouldIgnoreOtherRules) {
                 //si une règle dit que ça peut être NULL mais qu'il y a un input (ou que ça ne peut tout simplement ne pas être NULL), 
                 //je considère que la règle a été enfreinte et que la validation pour cette règle a raté.
                 if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
-                    $this->setErrorMessage($key, $validationRule->getMessage());
+                    $this->setErrorMessage($key, $this->replacePlaceHolder($key, $validationRule->getMessage(), $validationRule->getPlaceHolder()));
                 }
             }
-
         } else {
             //une des règles a été validée on sauvegarde la valeur.
             //Si une valeur n'a pas encore été assignée ou si c'est la règle a également pour rôle de cast la valeur on assigne à validValue
@@ -166,12 +169,21 @@ class Validator
         }
     }
 
+    private function replacePlaceHolder(string $key, string $message, string $placeholder)
+    {
+        if (isset($this->placeHolders[$key])) {
+            $message = str_replace($placeholder, $this->placeHolders[$key], $message);
+        }
+
+        return $message;
+    }
+
     private function checkIfNeedToBeRequiredDynamically(RequiredIfRule $rule)
     {
-        if($rule->getIsRequired()){
+        if ($rule->getIsRequired()) {
             $this->canBeNullable = false;
             return false;
-        }else{
+        } else {
             $this->shouldIgnoreOtherRules = true;
             return true;
         }

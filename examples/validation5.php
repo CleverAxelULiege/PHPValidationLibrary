@@ -12,7 +12,7 @@ require(__DIR__ . "/../vendor/autoload.php");
 // die("died");
 
 $data = [
-    "target_audience" => "adult",
+    "target_audience" => "gneu",
     "firstname" => "tr",
     "lastname" => "br",
     "child_firstname" => "",
@@ -46,6 +46,10 @@ $rules = [
     ]
 ];
 
-$validator = new Validator($rules, $data);
+$placeHolders = [
+    "target_audience" => "public cible"
+];
+
+$validator = new Validator($rules, $data, $placeHolders);
 
 Validator::rawDisplay($validator);

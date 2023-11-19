@@ -12,7 +12,7 @@ use App\Validation\Validator;
 $data = [
     "start_date" => "2023/10/31",
     "end_date" => "2023/12/31",
-    "start_time" => "08:00",
+    "start_time" => "10:00",
     "end_time" => "09:00",
 ];
 
@@ -39,7 +39,12 @@ $validationRules = [
     ]
 ];
 
-Validator::rawDisplay(new Validator($validationRules, $data));
+$placeholder = [
+    "start_time" => "heure de début",
+    "end_time" => "heure de fin"
+];
+
+Validator::rawDisplay(new Validator($validationRules, $data, $placeholder));
 //OUTPUT DONNÉES VALIDES :
 // VALIDE
 
