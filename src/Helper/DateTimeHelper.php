@@ -23,7 +23,7 @@ class DateTimeHelper
         return $formatTime && $formatTime->format($format) == $time;
     }
 
-    private static function throwExceptionIfDatetimeFalse(string|bool $firstDateTime, string|bool $secondDatetime){
+    private static function throwExceptionIfDatetimeFalse(DateTime|bool $firstDateTime, DateTime|bool $secondDatetime){
         if($firstDateTime == false || $secondDatetime == false){
             throw new Exception("One or both DateTimes are incorrect.");
         }
