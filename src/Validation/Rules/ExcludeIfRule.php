@@ -3,6 +3,7 @@
 namespace App\Validation\Rules;
 
 use ReflectionFunction;
+use App\Validation\Rules\Parent\AbstractRule;
 use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 
 class ExcludeIfRule extends AbstractRuleDependentAnotherInput
@@ -10,6 +11,7 @@ class ExcludeIfRule extends AbstractRuleDependentAnotherInput
 
     public function __construct(string $keyFromAnotherInput, callable $needsToBeExcludedIf)
     {
+        $this->priority = AbstractRule::HIGH_PRIORITY;
         parent::__construct($keyFromAnotherInput, $needsToBeExcludedIf);
         $this->setIsKey(true);
     }

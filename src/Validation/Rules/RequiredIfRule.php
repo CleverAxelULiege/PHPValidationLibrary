@@ -2,9 +2,10 @@
 
 namespace App\Validation\Rules;
 
-use App\Helper\ValueHelper;
-use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 use ReflectionFunction;
+use App\Helper\ValueHelper;
+use App\Validation\Rules\Parent\AbstractRule;
+use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 
 class RequiredIfRule extends AbstractRuleDependentAnotherInput{
 
@@ -12,6 +13,7 @@ class RequiredIfRule extends AbstractRuleDependentAnotherInput{
 
     public function __construct(string $keyFromAnotherInput, callable $needsToBeRequiredIf)
     {
+        $this->priority = AbstractRule::HIGH_PRIORITY;
         parent::__construct($keyFromAnotherInput, $needsToBeRequiredIf);
         $this->setIsKey(true);
     }
