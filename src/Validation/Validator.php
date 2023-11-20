@@ -60,7 +60,8 @@ class Validator
             $this->executeValidationRules($validationRules, $key);
         }
 
-        $this->tryToRedirectOnFail();
+        if($this->didValidationFailed)
+            $this->tryToRedirectOnFail();
 
         return !$this->didValidationFailed;
     }
