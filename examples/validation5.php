@@ -12,7 +12,7 @@ require(__DIR__ . "/../vendor/autoload.php");
 // die("died");
 
 $data = [
-    "target_audience" => "gneu",
+    "target_audience" => "test",
     "firstname" => "tr",
     "lastname" => "br",
     "child_firstname" => "",

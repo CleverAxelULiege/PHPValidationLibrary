@@ -30,12 +30,12 @@ class LengthRule extends AbstractRule
             $stringLength = mb_strlen($value);
 
             if($stringLength < $this->minLength){
-                $this->setMessage("La longueur du texte venant du champs :" . $this->getKey() . ", doit être supérieur ou égal à " . $this->minLength);
+                $this->setMessage("La longueur du texte venant du champs " . $this->getKey() . " doit être supérieur ou égal à " . $this->minLength);
                 return false;
             }
             
             if($this->checkIfMaxLengthNotRespected($stringLength)){
-                $this->setMessage("La longueur du texte venant du champs :" . $this->getKey() . ", doit être inférieur ou égal à " . $this->maxLength);
+                $this->setMessage("La longueur du texte venant du champs " . $this->getKey() . " doit être inférieur ou égal à " . $this->maxLength);
                 return false;
             }
 

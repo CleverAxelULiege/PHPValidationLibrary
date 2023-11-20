@@ -40,8 +40,8 @@ $validationRules = [
 ];
 
 $placeholder = [
-    "start_time" => "heure de début",
-    "end_time" => "heure de fin"
+    "start_time" => "\"heure de début\"",
+    "end_time" => "\"heure de fin\""
 ];
 
 Validator::rawDisplay(new Validator($validationRules, $data, $placeholder));

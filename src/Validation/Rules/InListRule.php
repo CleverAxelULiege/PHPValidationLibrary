@@ -14,7 +14,7 @@ class InListRule extends AbstractRule
 
     public function isRuleValid(): bool
     {
-        $this->setMessage("La valeur passée dans le champs " . $this->getPlaceHolder() . " n'est pas dans la liste : " . implode(", ", $this->list));
+        $this->setMessage("La valeur passée dans le champs " . $this->getPlaceHolder() . " n'est pas dans la liste prédéfinie donnée : " . implode(", ", $this->list));
 
         return in_array($this->getValue(), $this->list);
     }

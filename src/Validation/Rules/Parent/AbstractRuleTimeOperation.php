@@ -35,21 +35,21 @@ abstract class AbstractRuleTimeOperation extends AbstractRuleDependentAnotherInp
 
     private function messageInvalideTime(?string $time)
     {
-        $this->setMessage("L'heure (" . ($time == null ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder() . " est invalide.");
+        $this->setMessage("L'heure (" . ($time == null || $time == "" ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder() . " est invalide.");
     }
 
     private function messageInvalideTimeFromInput(?string $time)
     {
-        $this->setMessage("L'heure (" . ($time == null ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder($this->timeToCompare) . " est invalide.");
+        $this->setMessage("L'heure (" . ($time == null || $time == "" ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder($this->timeToCompare) . " est invalide.");
     }
 
     private function areBothTimesString(mixed $value, mixed $valueFromAnotherInput) : bool{
-        $this->setMessage("Heure au format invalide dans le champs, " . $this->getPlaceHolder() .", doit être sous une chaine de charactères au format " . $this->format);
+        $this->setMessage("Heure au format invalide venant du champs " . $this->getPlaceHolder() .". Elle doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($value)){
             return false;
         }
         
-        $this->setMessage("Heure au format invalide, " . $this->getPlaceHolder($this->getInput())  . ", doit être sous une chaine de charactères au format " . $this->format);
+        $this->setMessage("Heure au format invalide venant du champs " . $this->getPlaceHolder($this->getInput())  . ". Elle doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
             return false;
         }
