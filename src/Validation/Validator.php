@@ -19,6 +19,8 @@ class Validator
     private array $validationRulesWithKey;
     private array $data;
     private ?array $placeHolders;
+    private ?string $redirectURL;
+    private bool $redirectOnFail;
     private array $errorValidationMessages = [];
     private array $validatedData = [];
     private mixed $validValue = null;
@@ -32,11 +34,13 @@ class Validator
     /**
      * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
      */
-    public function __construct(array $validationRulesWithKey, array $data, array $placeHolders = null)
+    public function __construct(array $validationRulesWithKey, array $data, array $placeHolders = null, string $redirectURL = null, bool $redirectOnFail = false)
     {
         $this->validationRulesWithKey = $validationRulesWithKey;
         $this->data = $data;
         $this->placeHolders = $placeHolders;
+        $this->redirectURL = $redirectURL;
+        $this->redirectOnFail = $redirectOnFail;
     }
 
     public function validate()
@@ -56,7 +60,30 @@ class Validator
             $this->executeValidationRules($validationRules, $key);
         }
 
+        $this->tryToRedirectOnFail();
+
         return !$this->didValidationFailed;
+    }
+
+    private function tryToRedirectOnFail()
+    {
+        if ($this->redirectURL != null) {
+            setcookie("error_messages", json_encode([
+                "uri" => parse_url($this->redirectURL)["path"],
+                "messages" => $this->getErrorValidationMessages()
+            ], JSON_UNESCAPED_UNICODE), [
+                "expires" => time() + 3600,
+                "path" => "/",
+                "secure" => true,
+                "httponly" => true,
+                "samesite" => 'strict',
+            ]);
+
+            if ($this->redirectOnFail) {
+                header("Location :" . $this->redirectURL, response_code: 303);
+                exit;
+            }
+        }
     }
 
     public function getValidatedData()
@@ -237,6 +264,49 @@ class Validator
             echo "<pre>";
             var_dump($validator->getErrorValidationMessages());
             echo "</pre>";
+        }
+    }
+
+    public static function displayErrorMessages(string $key = null)
+    {
+        if (!isset($_COOKIE["error_messages"])) {
+            return;
+        }
+
+        $errorMessagesWithUri = json_decode($_COOKIE["error_messages"], true);
+        setcookie("error_messages", "", [
+            "expires" => time() - 3600,
+            "path" => "/",
+            "secure" => true,
+            "httponly" => true,
+            "samesite" => 'strict',
+        ]);
+
+        $uri = $errorMessagesWithUri["uri"] ?? null;
+        $errorMessages = $errorMessagesWithUri["messages"] ?? null;
+
+        if ($uri != $_SERVER['REQUEST_URI'] || empty($errorMessages)) {
+            return;
+        }
+
+        //montre toutes les erreurs dans une liste
+        if ($key == null) {
+            echo "<ul>";
+            foreach ($errorMessages as $messages) {
+                foreach ($messages as $message) {
+                    echo "<li>" . $message . "</li>";
+                }
+            }
+            echo "</ul>";
+            return;
+        }
+
+        if(isset($errorMessages[$key])){
+            echo "<ul>";
+            foreach ($errorMessages[$key] as $message) {
+                echo "<li>" . $message . "</li>";
+            }
+            echo "</ul>";
         }
     }
 }

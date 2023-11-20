@@ -23,8 +23,7 @@ class RequiredIfRule extends AbstractRuleDependentAnotherInput{
     public function isRuleValid(): bool
     {
         $this->isRequired = false;
-        // $this->setMessage("Le champs, " . $this->getPlaceHolder() . ", est requis car le champs " . $this->getPlaceHolder($this->getInput()) . " est vide.");
-        $this->setMessage("Le champs, " . $this->getPlaceHolder() . ", est requis");
+        $this->setMessage("La valeur du champs " . $this->getPlaceHolder() . " est obligatoire et ne peut pas être composé uniquement d'espaces.");
         $value = $this->getValue();
         $valueFromAnotherInput = $this->getValueFromAnotherInput();
 

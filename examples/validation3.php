@@ -44,7 +44,7 @@ $placeholder = [
     "end_time" => "\"heure de fin\""
 ];
 
-Validator::rawDisplay(new Validator($validationRules, $data, $placeholder));
+Validator::rawDisplay(new Validator($validationRules, $data, $placeholder, "http://localhost/", true));
 //OUTPUT DONNÉES VALIDES :
 // VALIDE
 
