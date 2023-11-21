@@ -19,7 +19,7 @@ class Validator
     private array $validationRulesWithKey;
     private array $data;
     private ?array $placeHolders;
-    private ?string $redirectURL;
+    private ?string $redirectURL = null;
     private array $errorValidationMessages = [];
     private array $validatedData = [];
     private mixed $validValue = null;
