@@ -20,7 +20,6 @@ class Validator
     private array $data;
     private ?array $placeHolders;
     private ?string $redirectURL;
-    private bool $redirectOnFail;
     private array $errorValidationMessages = [];
     private array $validatedData = [];
     private mixed $validValue = null;
@@ -30,17 +29,17 @@ class Validator
     private bool $needsToBeExcluded = false;
 
     private bool $shouldIgnoreOtherRules = false;
+    private array $keysToRemoveFromDataWhenRedirecting = [];
+    private const COOKIE_TIME = 900;
 
     /**
      * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
      */
-    public function __construct(array $validationRulesWithKey, array $data, array $placeHolders = null, string $redirectURL = null, bool $redirectOnFail = false)
+    public function __construct(array $validationRulesWithKey, array $data, array $placeHolders = null)
     {
         $this->validationRulesWithKey = $validationRulesWithKey;
         $this->data = $data;
         $this->placeHolders = $placeHolders;
-        $this->redirectURL = $redirectURL;
-        $this->redirectOnFail = $redirectOnFail;
     }
 
     public function validate()
@@ -60,30 +59,85 @@ class Validator
             $this->executeValidationRules($validationRules, $key);
         }
 
-        if($this->didValidationFailed)
+        $this->removeCookieOldData();
+        $this->removeCookieErrorMessages();
+
+        if ($this->didValidationFailed)
             $this->tryToRedirectOnFail();
 
         return !$this->didValidationFailed;
     }
 
+    public function setKeysToRemoveFromDataWhenRedirecting(array $keys){
+        $this->keysToRemoveFromDataWhenRedirecting = $keys;
+        return $this;
+    }
+
+    public function redirectTo(string $url){
+        $this->redirectURL = $url;
+        return $this;
+    }
+
+    private function removeCookieOldData(){
+        setcookie("old_data", "", [
+            "expires" => time() - Validator::COOKIE_TIME,
+            "path" => "/",
+            "secure" => true,
+            "httponly" => true,
+            "samesite" => 'strict',
+        ]);
+    }
+
+    private function addCookieOldData(){
+        $URI = parse_url($this->redirectURL)["path"];
+
+        setcookie("old_data", json_encode([
+            "uri" => str_replace("index.php", "", $URI),
+            "old_data" => array_filter($this->data, function($d){
+                return !in_array($d, $this->keysToRemoveFromDataWhenRedirecting);
+            }, ARRAY_FILTER_USE_KEY)
+        ], JSON_UNESCAPED_UNICODE), [
+            "expires" => 0,
+            "path" => "/",
+            "secure" => true,
+            "httponly" => true,
+            "samesite" => 'strict',
+        ]);
+    }
+
+    private function removeCookieErrorMessages(){
+        setcookie("error_messages", "", [
+            "expires" => time() - Validator::COOKIE_TIME,
+            "path" => "/",
+            "secure" => true,
+            "httponly" => true,
+            "samesite" => 'strict',
+        ]);
+    }
+
+    private function addCookieErrorMessages(){
+        $URI = parse_url($this->redirectURL)["path"];
+
+        setcookie("error_messages", json_encode([
+            "uri" => str_replace("index.php", "", $URI),
+            "messages" => $this->getErrorValidationMessages()
+        ], JSON_UNESCAPED_UNICODE), [
+            "expires" => 0,
+            "path" => "/",
+            "secure" => true,
+            "httponly" => true,
+            "samesite" => 'strict',
+        ]);
+    }
+
     private function tryToRedirectOnFail()
     {
         if ($this->redirectURL != null) {
-            setcookie("error_messages", json_encode([
-                "uri" => parse_url($this->redirectURL)["path"],
-                "messages" => $this->getErrorValidationMessages()
-            ], JSON_UNESCAPED_UNICODE), [
-                "expires" => time() + 3600,
-                "path" => "/",
-                "secure" => true,
-                "httponly" => true,
-                "samesite" => 'strict',
-            ]);
+            $this->addCookieErrorMessages();
+            $this->addCookieOldData();
 
-            if ($this->redirectOnFail) {
-                header("Location :" . $this->redirectURL, response_code: 303);
-                exit;
-            }
+            header("Location :" . $this->redirectURL, response_code: 303);
+            exit;
         }
     }
 
@@ -268,6 +322,24 @@ class Validator
         }
     }
 
+    public static function getOldData()
+    {
+        if (!isset($_COOKIE["old_data"])) {
+            return new OldData(null);
+        }
+
+        $oldDatawithUri = json_decode($_COOKIE["old_data"], true);
+
+        $uri = $oldDatawithUri["uri"] ?? null;
+        $oldData = $oldDatawithUri["old_data"] ?? null;
+
+        if ($uri != str_replace("index.php", "", $_SERVER['REQUEST_URI']) || empty($oldData)) {
+            return new OldData(null);
+        }
+
+        return new OldData($oldData);
+    }
+
     public static function displayErrorMessages(string $key = null)
     {
         if (!isset($_COOKIE["error_messages"])) {
@@ -275,18 +347,11 @@ class Validator
         }
 
         $errorMessagesWithUri = json_decode($_COOKIE["error_messages"], true);
-        setcookie("error_messages", "", [
-            "expires" => time() - 3600,
-            "path" => "/",
-            "secure" => true,
-            "httponly" => true,
-            "samesite" => 'strict',
-        ]);
 
         $uri = $errorMessagesWithUri["uri"] ?? null;
         $errorMessages = $errorMessagesWithUri["messages"] ?? null;
-
-        if ($uri != $_SERVER['REQUEST_URI'] || empty($errorMessages)) {
+        
+        if ($uri != str_replace("index.php", "", $_SERVER['REQUEST_URI']) || empty($errorMessages)) {
             return;
         }
 
@@ -302,7 +367,7 @@ class Validator
             return;
         }
 
-        if(isset($errorMessages[$key])){
+        if (isset($errorMessages[$key])) {
             echo "<ul>";
             foreach ($errorMessages[$key] as $message) {
                 echo "<li>" . $message . "</li>";
