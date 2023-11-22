@@ -14,7 +14,6 @@ $data = [
     "firstname" => "Billy",
     "lastname" => "Bob",
     "national_number" => "42.01.22.051-81",
-    "birthdate" => ""
 ];
 
 $validationRules = [

@@ -58,8 +58,10 @@ class Validator extends AbstractValidator
         $this->removeCookieOldData();
         $this->removeCookieErrorMessages();
 
-        if ($this->didValidationFailed)
+        if ($this->didValidationFailed){
             $this->tryToRedirectOnFail();
+            return $this;
+        }
 
         return !$this->didValidationFailed;
     }
