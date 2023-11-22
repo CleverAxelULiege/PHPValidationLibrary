@@ -11,6 +11,7 @@ use App\Validation\Rules\MustBeBeforeOrEqualsDateRule;
 use App\Validation\Rules\NullableRule;
 use App\Validation\Rules\RequiredRule;
 use App\Validation\Validator;
+use App\Validation\ValidatorHelper;
 
 $data = [
     "integer" => "50",
@@ -30,7 +31,7 @@ $validationRules = [
     ]
 ];
 
-Validator::rawDisplay(new Validator($validationRules, $data));
+ValidatorHelper::rawDisplay(new Validator($validationRules, $data));
 
 //On remarquera qu'avec les règles il cast automatiquement les valeurs de chaine de charactères en INT ou en FLOAT
 

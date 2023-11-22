@@ -10,6 +10,7 @@ use App\Validation\Rules\NullableRule;
 use App\Validation\Rules\RequiredIfRule;
 use App\Validation\Rules\RequiredRule;
 use App\Validation\Validator;
+use App\Validation\ValidatorHelper;
 
 $data = [
     "phone_number" => "",
@@ -45,7 +46,7 @@ $validationRules = [
     ]
 ];
 
-Validator::rawDisplay(new Validator($validationRules, $_POST));
+ValidatorHelper::rawDisplay(new Validator($validationRules, $_POST));
 //OUTPUT DONNÉES VALIDES :
 // VALIDE
 

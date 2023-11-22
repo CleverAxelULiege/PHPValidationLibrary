@@ -8,6 +8,7 @@ use App\Validation\Rules\MustBeBeforeOrEqualsDateRule;
 use App\Validation\Rules\MustBeBeforeOrEqualsTimeRule;
 use App\Validation\Rules\NullableRule;
 use App\Validation\Validator;
+use App\Validation\ValidatorHelper;
 
 $data = [
     "start_date" => "2023/10/31",
@@ -44,7 +45,7 @@ $placeholder = [
     "end_time" => "\"heure de fin\""
 ];
 
-Validator::rawDisplay(new Validator($validationRules, $data, $placeholder));
+ValidatorHelper::rawDisplay(new Validator($validationRules, $data, $placeholder));
 //OUTPUT DONNÉES VALIDES :
 // VALIDE
 

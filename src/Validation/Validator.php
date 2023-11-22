@@ -11,14 +11,11 @@ use App\Validation\Rules\Parent\AbstractRule;
 use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 use App\Validation\Rules\RequiredIfRule;
 
-class Validator
+class Validator extends AbstractValidator
 {
     /**
-     * @var \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
+     * @var \App\Validation\Rules\Parent\AbstractRule[][] $validationRules
      */
-    private array $validationRulesWithKey;
-    private array $data;
-    private ?array $placeHolders;
     private ?string $redirectURL = null;
     private array $errorValidationMessages = [];
     private array $validatedData = [];
@@ -30,23 +27,22 @@ class Validator
 
     private bool $shouldIgnoreOtherRules = false;
     private array $keysToRemoveFromDataWhenRedirecting = [];
-    private const COOKIE_TIME = 900;
 
     /**
-     * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRulesWithKey
+     * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRules
      */
-    public function __construct(array $validationRulesWithKey, array $data, array $placeHolders = null)
+    public function __construct(array $validationRules, array $data, array $placeholders = null)
     {
-        $this->validationRulesWithKey = $validationRulesWithKey;
+        $this->validationRules = $validationRules;
         $this->data = $data;
-        $this->placeHolders = $placeHolders;
+        $this->placeholders = $placeholders;
     }
 
-    public function validate()
+    public function validate(): bool
     {
         $this->setAllValuesAndKeys();
 
-        foreach ($this->validationRulesWithKey as $key => $validationRules) {
+        foreach ($this->validationRules as $key => $validationRules) {
             $this->shouldIgnoreOtherRules = false;
             $this->validValue = null;
             $this->needsToBeExcluded = false;
@@ -68,17 +64,32 @@ class Validator
         return !$this->didValidationFailed;
     }
 
-    public function setKeysToRemoveFromDataWhenRedirecting(array $keys){
+    public function getValidatedData(): array
+    {
+        return $this->validatedData;
+    }
+
+    public function getErrorMessages(): array
+    {
+        return array_map(function ($errorMessage) {
+            return array_unique($errorMessage);
+        }, $this->errorValidationMessages);
+    }
+
+    public function setKeysToRemoveFromDataWhenRedirecting(array $keys)
+    {
         $this->keysToRemoveFromDataWhenRedirecting = $keys;
         return $this;
     }
 
-    public function redirectTo(string $url){
+    public function redirectTo(string $url)
+    {
         $this->redirectURL = $url;
         return $this;
     }
 
-    private function removeCookieOldData(){
+    private function removeCookieOldData()
+    {
         setcookie("old_data", "", [
             "expires" => time() - Validator::COOKIE_TIME,
             "path" => "/",
@@ -88,12 +99,13 @@ class Validator
         ]);
     }
 
-    private function addCookieOldData(){
+    private function addCookieOldData()
+    {
         $URI = parse_url($this->redirectURL)["path"];
 
         setcookie("old_data", json_encode([
             "uri" => str_replace("index.php", "", $URI),
-            "old_data" => array_filter($this->data, function($d){
+            "old_data" => array_filter($this->data, function ($d) {
                 return !in_array($d, $this->keysToRemoveFromDataWhenRedirecting);
             }, ARRAY_FILTER_USE_KEY)
         ], JSON_UNESCAPED_UNICODE), [
@@ -105,7 +117,8 @@ class Validator
         ]);
     }
 
-    private function removeCookieErrorMessages(){
+    private function removeCookieErrorMessages()
+    {
         setcookie("error_messages", "", [
             "expires" => time() - Validator::COOKIE_TIME,
             "path" => "/",
@@ -115,12 +128,13 @@ class Validator
         ]);
     }
 
-    private function addCookieErrorMessages(){
+    private function addCookieErrorMessages()
+    {
         $URI = parse_url($this->redirectURL)["path"];
 
         setcookie("error_messages", json_encode([
             "uri" => str_replace("index.php", "", $URI),
-            "messages" => $this->getErrorValidationMessages()
+            "messages" => $this->getErrorMessages()
         ], JSON_UNESCAPED_UNICODE), [
             "expires" => 0,
             "path" => "/",
@@ -141,17 +155,6 @@ class Validator
         }
     }
 
-    public function getValidatedData()
-    {
-        return $this->validatedData;
-    }
-
-    public function getErrorValidationMessages()
-    {
-        return array_map(function ($errorMessage) {
-            return array_unique($errorMessage);
-        }, $this->errorValidationMessages);
-    }
 
     private function setErrorMessage(string $key, string $message)
     {
@@ -191,15 +194,17 @@ class Validator
         //ternaire pour savoir si clé d'un tableau assoc ou une valeur
         $valueFromAnotherInput = $validationRule->getIsKey() ? $this->data[$validationRule->getInput()] : $validationRule->getInput();
         $validationRule->setValueFromAnotherInput($valueFromAnotherInput);
-        if ($validationRule->isRuleValid() == false) {
 
+        if ($validationRule->isRuleValid() == false) {
             if (!($validationRule instanceof RequiredIfRule && $this->checkIfNeedToBeRequiredDynamically($validationRule) || $validationRule instanceof ExcludeIfRule)) {
                 $message = $this->replacePlaceHolder($key, $validationRule->getMessage(), $validationRule->getPlaceHolder());
 
                 if ($validationRule->getIsKey())
                     $message = $this->replacePlaceHolder($validationRule->getInput(), $message, $validationRule->getPlaceHolder($validationRule->getInput()));
 
-                $this->setErrorMessage($key, $message);
+                if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
+                    $this->setErrorMessage($key, $message);
+                }
             }
         } else {
             //une des règles a été validée on sauvegarde la valeur.
@@ -220,7 +225,6 @@ class Validator
     {
         //la règle n'est pas valide
         if ($validationRule->isRuleValid() == false) {
-
             if (!$this->shouldIgnoreOtherRules) {
                 //si une règle dit que ça peut être NULL mais qu'il y a un input (ou que ça ne peut tout simplement ne pas être NULL), 
                 //je considère que la règle a été enfreinte et que la validation pour cette règle a raté.
@@ -240,7 +244,7 @@ class Validator
 
     private function setAllValuesAndKeys()
     {
-        foreach ($this->validationRulesWithKey as $key => $rules) {
+        foreach ($this->validationRules as $key => $rules) {
             if (isset($this->data[$key]) == false) {
                 $this->data[$key] = null;
             }
@@ -253,8 +257,8 @@ class Validator
 
     private function replacePlaceHolder(string $key, string $message, string $placeholder)
     {
-        if (isset($this->placeHolders[$key])) {
-            $message = str_replace($placeholder, $this->placeHolders[$key], $message);
+        if (isset($this->placeholders[$key])) {
+            $message = str_replace($placeholder, $this->placeholders[$key], $message);
         }
 
         return $message;
@@ -304,75 +308,6 @@ class Validator
         //sera par défaut à NullableRule si RequiredRule ou NullableRule n'est pas précisé.
         if ($isRequired == false && $isNullable == false) {
             $this->canBeNullable = true;
-        }
-    }
-
-    public static function rawDisplay(Validator $validator)
-    {
-        if ($validator->validate()) {
-            echo "VALIDE <br>";
-            echo "<pre>";
-            var_dump($validator->getValidatedData());
-            echo "</pre>";
-        } else {
-            echo "NON VALIDE <br>";
-            echo "<pre>";
-            var_dump($validator->getErrorValidationMessages());
-            echo "</pre>";
-        }
-    }
-
-    public static function getOldData()
-    {
-        if (!isset($_COOKIE["old_data"])) {
-            return new OldData(null);
-        }
-
-        $oldDatawithUri = json_decode($_COOKIE["old_data"], true);
-
-        $uri = $oldDatawithUri["uri"] ?? null;
-        $oldData = $oldDatawithUri["old_data"] ?? null;
-
-        if ($uri != str_replace("index.php", "", $_SERVER['REQUEST_URI']) || empty($oldData)) {
-            return new OldData(null);
-        }
-
-        return new OldData($oldData);
-    }
-
-    public static function displayErrorMessages(string $key = null)
-    {
-        if (!isset($_COOKIE["error_messages"])) {
-            return;
-        }
-
-        $errorMessagesWithUri = json_decode($_COOKIE["error_messages"], true);
-
-        $uri = $errorMessagesWithUri["uri"] ?? null;
-        $errorMessages = $errorMessagesWithUri["messages"] ?? null;
-        
-        if ($uri != str_replace("index.php", "", $_SERVER['REQUEST_URI']) || empty($errorMessages)) {
-            return;
-        }
-
-        //montre toutes les erreurs dans une liste
-        if ($key == null) {
-            echo "<ul>";
-            foreach ($errorMessages as $messages) {
-                foreach ($messages as $message) {
-                    echo "<li>" . $message . "</li>";
-                }
-            }
-            echo "</ul>";
-            return;
-        }
-
-        if (isset($errorMessages[$key])) {
-            echo "<ul>";
-            foreach ($errorMessages[$key] as $message) {
-                echo "<li>" . $message . "</li>";
-            }
-            echo "</ul>";
         }
     }
 }

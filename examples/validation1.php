@@ -8,11 +8,13 @@ use App\Validation\Rules\MustBeBeforeOrEqualsDateRule;
 use App\Validation\Rules\NullableRule;
 use App\Validation\Rules\RequiredRule;
 use App\Validation\Validator;
+use App\Validation\ValidatorHelper;
 
 $data = [
     "firstname" => "Billy",
     "lastname" => "Bob",
     "national_number" => "42.01.22.051-81",
+    "birthdate" => ""
 ];
 
 $validationRules = [
@@ -36,7 +38,7 @@ $validationRules = [
     ]
 ];
 
-Validator::rawDisplay(new Validator($validationRules, $data));
+ValidatorHelper::rawDisplay(new Validator($validationRules, $data));
 //OUTPUT DONNÉES VALIDES :
 // VALIDE
 
