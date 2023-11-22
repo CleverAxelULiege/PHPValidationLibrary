@@ -32,9 +32,19 @@ abstract class AbstractRule
         return $this->key;
     }
 
-    private function setKey(string $key)
+    public function setKey(string $key)
     {
         $this->key = $key;
+        return $this;
+    }
+
+    public function setValue(mixed $value)
+    {
+        if (is_string($value))
+            $value = trim($value);
+
+        $this->value = $value;
+        return $this;
     }
 
     protected function setMessage(string $message)
@@ -42,19 +52,12 @@ abstract class AbstractRule
         $this->message = $message;
     }
 
-    public function setValueAndKey(mixed $value, string $key)
-    {
-        $this->setValue($value);
-        $this->setKey($key);
-    }
+    // public function setValueAndKey(mixed $value, string $key)
+    // {
+    //     $this->setValue($value);
+    //     $this->setKey($key);
+    // }
 
-    protected function setValue(mixed $value)
-    {
-        if (is_string($value))
-            $value = trim($value);
-
-        $this->value = $value;
-    }
 
     public function getShouldCastValue()
     {
@@ -99,11 +102,5 @@ abstract class AbstractRule
         }
 
         $this->type = $type;
-    }
-
-    //à supprimer STATIC
-    public static function fromInput(mixed $value)
-    {
-        return $value ?? null;
     }
 }

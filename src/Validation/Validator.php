@@ -252,7 +252,8 @@ class Validator extends AbstractValidator
             }
 
             foreach ($rules as $rule) {
-                $rule->setValueAndKey($this->data[$key], $key);
+                $rule->setKey($key)->setValue($this->data[$key]);
+                // $rule->setValueAndKey($this->data[$key], $key);
             }
         }
     }

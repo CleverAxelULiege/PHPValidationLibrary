@@ -4,6 +4,9 @@ namespace App\Validation;
 
 abstract class AbstractValidator
 {
+    /**
+     * @var \App\Validation\Rules\Parent\AbstractRule[][] $validationRules
+     */
     protected array $validationRules;
     protected array $data;
     protected ?array $placeholders;
