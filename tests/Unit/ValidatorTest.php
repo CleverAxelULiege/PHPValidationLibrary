@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Helper\ValueHelper;
 use App\Validation\Rules\BelgianPhoneNumberRule;
+use App\Validation\Rules\ExcludeIfRule;
 use App\Validation\Rules\LengthRule;
 use App\Validation\Rules\MustBeAfterDateRule;
 use App\Validation\Rules\MustBeBeforeDateRule;
@@ -54,7 +55,8 @@ final class ValidatorTest extends TestCase
     /**
      * Si une valeur associée à une clef a le moindre input les règles seront appliquées même si NullableRule est spécifiée.
      */
-    public function test_NullableRule_not_empty(){
+    public function test_NullableRule_not_empty()
+    {
         $data = [
             "username" => "b",
             "password" => null
@@ -79,8 +81,9 @@ final class ValidatorTest extends TestCase
     /**
      * RequiredRule ainsi que NullableRule ne peuvent pas être dans le même array.
      * S'ils sont dans le même tableau une LogicException sera envoyé.
-    */
-    public function testException_RequiredRule_NullableRule(){
+     */
+    public function testException_RequiredRule_NullableRule()
+    {
         $data = [
             "username" => "",
             "password" => ""
@@ -108,8 +111,9 @@ final class ValidatorTest extends TestCase
     /**
      * RequiredRule ainsi que RequiredIfRule ne peuvent pas être dans le même array.
      * S'ils sont dans le même tableau une LogicException sera envoyé.
-    */
-    public function testException_RequiredRule_RequiredIfRule(){
+     */
+    public function testException_RequiredRule_RequiredIfRule()
+    {
         $data = [
             "username" => "",
             "password" => ""
@@ -122,7 +126,7 @@ final class ValidatorTest extends TestCase
             ],
             "password" => [
                 new RequiredRule(),
-                new RequiredIfRule("username", fn($username) => ValueHelper::isEmpty($username)),
+                new RequiredIfRule("username", fn ($username) => ValueHelper::isEmpty($username)),
                 new LengthRule(100, 3),
             ],
         ];
@@ -136,7 +140,8 @@ final class ValidatorTest extends TestCase
     /**
      * Si la condition dans le RequiredIfRule a été remplie il ne doit pas ignorer les autres règles.
      */
-    public function testException_RequiredIfRule_dont_ignore_other_rule_when_required(){
+    public function testRequiredIfRule_dont_ignore_other_rule_when_required()
+    {
         $data = [
             "username" => "",
             "second_username" => "t"
@@ -149,20 +154,20 @@ final class ValidatorTest extends TestCase
             ],
             "second_username" => [
                 new NullableRule(),
-                new RequiredIfRule("username", fn($username) => ValueHelper::isEmpty($username)), //EST REQUIS => un input n'a pas été mis dans username
-                new LengthRule(100, 3), //RequiredIf == TRUE => Applique les règles suivantes
+                new RequiredIfRule("username", fn ($username) => ValueHelper::isEmpty($username)), //EST REQUIS => un input n'a pas été mis dans username
+                new LengthRule(100, 3), //RequiredIf == TRUE => Applique les règles suivantes mais va renvoyer FALSE ici.
             ],
         ];
 
         $this->assertFalse((new Validator($rules, $data))->validate());
     }
 
-    /**
-     * Si la condition dans le RequiredIfRule n'a pas été remplie il doit ignorer les autres règles.
-     */
-    public function testException_RequiredIfRule_ignore_other_rule_when_not_required(){
+
+
+    public function testRequiredIfRule_ignore_other_rule_when_required()
+    {
         $data = [
-            "username" => "username_test",
+            "username" => "test",
             "second_username" => "t"
         ];
 
@@ -173,8 +178,13 @@ final class ValidatorTest extends TestCase
             ],
             "second_username" => [
                 new NullableRule(),
-                new RequiredIfRule("username", fn($username) => ValueHelper::isEmpty($username)), //N'EST PAS REQUIS => un input a été mis dans username
-                new LengthRule(100, 3), //RequiredIf == FALSE => N'applique pas les règles suivantes même si elles sont enfreintes.
+                //N'est pas requis ICI mais vu qu'il enfreint la LengthRule car second_username n'est pas vide (voir le test test_NullableRule_not_empty)
+                // il devrait renvoyer false.
+                //pour qu'il ignore les autres règles, il faut faire appel à ExcludeIfRule qui exclura la donnée des données validées renvoyées
+                //et ne prendra pas compte des autres règles
+                new RequiredIfRule("username", fn ($username) => ValueHelper::isEmpty($username)),
+                new ExcludeIfRule("username", fn ($username) => !ValueHelper::isEmpty($username)),
+                new LengthRule(100, 3),
             ],
         ];
 
@@ -182,82 +192,56 @@ final class ValidatorTest extends TestCase
     }
 
     /**
-     * Si la condition dans le RequiredIfRule n'a pas été remplie il ne doit quand même pas ignorer les autres règles car
-     * shouldIgnoreOtherRulesIfNotRequired à FALSE.
-     */
-    public function testException_RequiredIfRule_dont_ignore_other_rule_when_not_required(){
-        $data = [
-            "username" => "username_test",
-            "second_username" => "t"
-        ];
-
-        $rules = [
-            "username" => [
-                new NullableRule(),
-                new LengthRule(100, 3)
-            ],
-            "second_username" => [
-                new NullableRule(),
-                //N'EST PAS REQUIS => un input a été mis dans username MAIS shouldIgnoreOtherRulesIfNotRequired mis à FALSE, respecte quand même les autres règles.
-                new RequiredIfRule("username", fn($username) => ValueHelper::isEmpty($username), shouldIgnoreOtherRulesIfNotRequired:false), 
-                new LengthRule(100, 3), //RequiredIf == FALSE => applique les règles suivantes car shouldIgnoreOtherRulesIfNotRequired == FALSE
-            ],
-        ];
-
-        $this->assertFalse((new Validator($rules, $data))->validate());
-    }
-    
-
-    
-    /**
      * Comparaison de date entre une date hardcodée et entre deux inputs
      */
-    public function testDate_comparaison(){  
+    public function testDate_comparaison()
+    {
         $data = [
             "start_date" => "2023/10/01",
             "end_date" => "2023/12/31"
         ];
-    
+
         $rules = [
             "start_date" => [
                 new RequiredRule(),
                 new MustBeAfterDateRule("2023/09/01"), //doit commencer après le 2023/09/01
-                new MustBeBeforeDateRule("end_date", isKey:true) //doit commencer avant la date dans end_date
+                new MustBeBeforeDateRule("end_date", isKey: true) //doit commencer avant la date dans end_date
             ],
             "end_date" => [
                 new RequiredRule(),
                 new MustBeBeforeOrEqualsDateRule("2023/12/31"), //doit commencer avant (ou au) 2023/12/31
-                new MustBeAfterDateRule("start_date", isKey:true) //doit commencer après la date dans start_date
+                new MustBeAfterDateRule("start_date", isKey: true) //doit commencer après la date dans start_date
             ]
         ];
-    
+
         $this->assertTrue((new Validator($rules, $data))->validate());
     }
-    
+
 
 
     /**
      * Si un input est vide et que NullableRule est spécifié, la comparaison entre les valeurs
      * hardcodées et venant d'un autre input n'aura pas lieu.
      */
-    public function testDate_comparaison_nullable(){  
+    public function testDate_comparaison_nullable()
+    {
         $data = [
             "start_date" => "2023/10/01",
         ];
-    
+
         $rules = [
             "start_date" => [
                 new NullableRule(),
                 new MustBeAfterDateRule("2023/09/01"), //doit commencer après le 2023/09/01 => APPLIQUERA CETTE REGLE CAR NON VIDE
-                new MustBeBeforeDateRule("end_date", isKey:true) //doit commencer avant la date dans end_date => N'APPLIQUERA PAS CETTE REGLE CAR END_DATE EST VIDE/NON PRÉCISÉ
+                new MustBeBeforeDateRule("end_date", isKey: true) //doit commencer avant la date dans end_date => N'APPLIQUERA PAS CETTE REGLE CAR END_DATE EST VIDE/NON PRÉCISÉ
             ],
             "end_date" => [
                 new NullableRule(),
                 new MustBeBeforeOrEqualsDateRule("2023/12/31"), //doit commencer avant (ou au) 2023/12/31 => N'APPLIQUERA PAS CETTE REGLE CAR END_DATE EST VIDE/NON PRÉCISÉ
-                new MustBeAfterDateRule("start_date", isKey:true) //doit commencer après la date dans start_date => N'APPLIQUERA PAS CETTE REGLE CAR END_DATE EST VIDE/NON PRÉCISÉ
+                new MustBeAfterDateRule("start_date", isKey: true) //doit commencer après la date dans start_date => N'APPLIQUERA PAS CETTE REGLE CAR END_DATE EST VIDE/NON PRÉCISÉ
             ]
         ];
-    
+
         $this->assertTrue((new Validator($rules, $data))->validate());
     }
 }

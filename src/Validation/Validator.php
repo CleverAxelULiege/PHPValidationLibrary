@@ -273,7 +273,7 @@ class Validator extends AbstractValidator
             $this->canBeNullable = false;
             return false;
         } else {
-            $this->shouldIgnoreOtherRules = $rule->getShouldIgnoreOtherRulesIfNotRequired();
+            $this->shouldIgnoreOtherRules = $this->needsToBeExcluded;
             return true;
         }
     }
