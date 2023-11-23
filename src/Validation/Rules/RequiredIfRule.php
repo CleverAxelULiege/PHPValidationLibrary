@@ -10,12 +10,17 @@ use App\Validation\Rules\Parent\AbstractRuleDependentAnotherInput;
 class RequiredIfRule extends AbstractRuleDependentAnotherInput{
 
     private bool $isRequired = false;
-
-    public function __construct(string $keyFromAnotherInput, callable $needsToBeRequiredIf)
+    private bool $shouldIgnoreOtherRulesIfNotRequired;
+    public function __construct(string $keyFromAnotherInput, callable $needsToBeRequiredIf, bool $shouldIgnoreOtherRulesIfNotRequired = true)
     {
         $this->priority = AbstractRule::HIGH_PRIORITY;
+        $this->shouldIgnoreOtherRulesIfNotRequired = $shouldIgnoreOtherRulesIfNotRequired;
         parent::__construct($keyFromAnotherInput, $needsToBeRequiredIf);
         $this->setIsKey(true);
+    }
+
+    public function getShouldIgnoreOtherRulesIfNotRequired(){
+        return $this->shouldIgnoreOtherRulesIfNotRequired;
     }
 
     public function getIsRequired(){

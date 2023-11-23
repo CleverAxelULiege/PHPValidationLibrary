@@ -58,7 +58,7 @@ class Validator extends AbstractValidator
         $this->removeCookieOldData();
         $this->removeCookieErrorMessages();
 
-        if ($this->didValidationFailed){
+        if ($this->didValidationFailed && $this->redirectURL != null){
             $this->tryToRedirectOnFail();
             return $this;
         }
@@ -273,7 +273,7 @@ class Validator extends AbstractValidator
             $this->canBeNullable = false;
             return false;
         } else {
-            $this->shouldIgnoreOtherRules = true;
+            $this->shouldIgnoreOtherRules = $rule->getShouldIgnoreOtherRulesIfNotRequired();
             return true;
         }
     }
