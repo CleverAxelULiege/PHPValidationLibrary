@@ -16,7 +16,7 @@ class BooleanRule extends AbstractRule{
 
     public function isRuleValid(): bool
     {
-        $value = $this->getValue();
+        $value = $this->getValue() ?? "";
         
         $value = $value == "" ? false : true;
         $this->setValue($value);

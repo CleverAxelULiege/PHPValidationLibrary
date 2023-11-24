@@ -16,7 +16,7 @@ class TimeRule extends AbstractRule{
     public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->setValue($value);
+        
         $this->setMessage("L'heure venant du champs " . $this->getPlaceHolder() . " n'est pas valide.");
         
         if(!is_string($value)){

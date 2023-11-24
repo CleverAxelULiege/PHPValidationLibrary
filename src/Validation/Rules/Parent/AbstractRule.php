@@ -83,7 +83,7 @@ abstract class AbstractRule
             return $this->value;
         }
 
-        return $this->value ?? "";
+        return $this->value;
     }
 
     /**
