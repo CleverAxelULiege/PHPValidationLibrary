@@ -57,11 +57,6 @@ class LengthRule extends AbstractRule
 
     protected function tryThrowRuleException()
     {
-        $value = $this->getValue();
-        if(isset($value) == false){
-            throw new RuleException("No value passed");
-        }
-
         if($this->minLength < 0) {
             throw new RuleException("The property minLength can't be less than 0");
         }

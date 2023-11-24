@@ -10,8 +10,8 @@ class MustBeAfterTimeRule extends AbstractRuleTimeOperation{
 
     public function isRuleValid(): bool
     {
-        $value = $this->getValue();
-        $valueFromAnotherInput = $this->getValueFromAnotherInput();
+        $value = $this->getValue() ?? "";
+        $valueFromAnotherInput = $this->getValueFromAnotherInput() ?? "";
 
         if($this->areBothTimesValids($value, $valueFromAnotherInput) == false){
             return false;

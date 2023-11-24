@@ -11,8 +11,8 @@ class MustBeBeforeDateRule extends AbstractRuleDateOperation{
 
     public function isRuleValid(): bool
     {
-        $value = $this->getValue();
-        $valueFromAnotherInput = $this->getValueFromAnotherInput();
+        $value = $this->getValue() ?? "";
+        $valueFromAnotherInput = $this->getValueFromAnotherInput() ?? "";
         
         if($this->areBothDatesValids($value, $valueFromAnotherInput) == false){
             return false;
