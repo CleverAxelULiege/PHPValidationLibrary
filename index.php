@@ -18,11 +18,7 @@
     use App\Validation\Validator;
 
     require(__DIR__ . "/vendor/autoload.php");
-    Validator::displayErrorMessages();
 
-
-    Validator::displayErrorMessages("start_time");
-    Validator::displayErrorMessages("end_time");
     ?>
 </body>
 </html>

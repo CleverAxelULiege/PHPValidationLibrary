@@ -60,10 +60,26 @@ abstract class AbstractRule
         $this->message = $message;
     }
 
-    protected function setMessageDetails(string $key, int $index, array $replacements){
+    protected function setMessageDetails(string $key, int $index, array $replacements)
+    {
         $this->messageDetailsKey = $key;
         $this->messageDetailsIndex = $index;
         $this->messageDetailsReplacements = $replacements;
+    }
+
+    public function getMessageKey()
+    {
+        return $this->messageDetailsKey;
+    }
+
+    public function getMessageIndex()
+    {
+        return $this->messageDetailsIndex;
+    }
+
+    public function getMessageReplacements()
+    {
+        return $this->messageDetailsReplacements;
     }
 
 

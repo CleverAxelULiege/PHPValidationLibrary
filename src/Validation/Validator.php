@@ -27,12 +27,14 @@ class Validator extends AbstractValidator
 
     private bool $shouldIgnoreOtherRules = false;
     private array $keysToRemoveFromDataWhenRedirecting = [];
+    private array $errorMessagesTrad = [];
 
     /**
      * @param \App\Validation\Rules\Parent\AbstractRule[][] $validationRules
      */
-    public function __construct(array $validationRules, array $data, array $placeholders = null)
+    public function __construct(array $validationRules, array $data, string $lng = "fr", array $placeholders = null)
     {
+        $this->errorMessagesTrad = require(__DIR__ . "/traductions/" . $lng . ".php");
         $this->validationRules = $validationRules;
         $this->data = $data;
         $this->placeholders = $placeholders;
@@ -199,6 +201,7 @@ class Validator extends AbstractValidator
 
         if ($validationRule->isRuleValid() == false) {
             if (!($validationRule instanceof RequiredIfRule && $this->checkIfNeedToBeRequiredDynamically($validationRule) || $validationRule instanceof ExcludeIfRule)) {
+                $message = $this->setReplacements($validationRule);
                 $message = $this->replacePlaceHolder($key, $validationRule->getMessage(), $validationRule->getPlaceHolder());
 
                 if ($validationRule->getIsKey())
@@ -231,7 +234,8 @@ class Validator extends AbstractValidator
                 //si une règle dit que ça peut être NULL mais qu'il y a un input (ou que ça ne peut tout simplement ne pas être NULL), 
                 //je considère que la règle a été enfreinte et que la validation pour cette règle a raté.
                 if (($this->canBeNullable && ValueHelper::isEmpty($validationRule->getValue()) == false) || $this->canBeNullable == false) {
-                    $this->setErrorMessage($key, $this->replacePlaceHolder($key, $validationRule->getMessage(), $validationRule->getPlaceHolder()));
+                    $message = $this->setReplacements($validationRule);
+                    $this->setErrorMessage($key, $this->replacePlaceHolder($key, $message, $validationRule->getPlaceHolder()));
                 }
             }
         } else {
@@ -241,6 +245,15 @@ class Validator extends AbstractValidator
                 $this->validValue = $validationRule->getValue($validationRule->getShouldCastValue());
             }
         }
+    }
+
+    private function setReplacements(AbstractRule $rule){
+        $message = $this->errorMessagesTrad[$rule->getMessageKey()][$rule->getMessageIndex()];
+        foreach ($rule->getMessageReplacements() as $placeholder => $value) {
+            $message = str_replace($placeholder, $value, $message);
+        }
+
+        return $message;
     }
 
 
