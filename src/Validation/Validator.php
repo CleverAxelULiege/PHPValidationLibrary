@@ -202,7 +202,7 @@ class Validator extends AbstractValidator
         if ($validationRule->isRuleValid() == false) {
             if (!($validationRule instanceof RequiredIfRule && $this->checkIfNeedToBeRequiredDynamically($validationRule) || $validationRule instanceof ExcludeIfRule)) {
                 $message = $this->setReplacements($validationRule);
-                $message = $this->replacePlaceHolder($key, $validationRule->getMessage(), $validationRule->getPlaceHolder());
+                $message = $this->replacePlaceHolder($key, $message, $validationRule->getPlaceHolder());
 
                 if ($validationRule->getIsKey())
                     $message = $this->replacePlaceHolder($validationRule->getInput(), $message, $validationRule->getPlaceHolder($validationRule->getInput()));
