@@ -21,12 +21,18 @@ class BooleanRule extends AbstractRule{
         $value = $value == "" ? false : true;
         $this->setValue($value);
         
-        $this->setMessage("La valeur du champs ". $this->getPlaceHolder() ."  n'est pas la valeur booléenne expectée : " . ($this->valueExpected ? "TRUE" : "FALSE"));
-        if($this->valueExpected != null && (bool)$value != $this->valueExpected){
+        $this->setMessageDetails("boolean", 0, [
+            ":placeholder" => $this->getPlaceHolder(),
+            ":expectedValue" => ($this->valueExpected ? "TRUE" : "FALSE")
+        ]);
+
+        if($this->valueExpected !== null && (bool)$value !== $this->valueExpected){
             return false;
         }
 
-        $this->setMessage("La valeur du champs ". $this->getPlaceHolder() ."  n'est pas une valeur booléenne correcte");
+        $this->setMessageDetails("boolean", 1, [
+            ":placeholder" => $this->getPlaceHolder(),
+        ]);
         return in_array($value, ["1", "0", 1, 0, true, false, "true", "false"]);
     }
 }

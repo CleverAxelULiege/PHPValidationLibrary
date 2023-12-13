@@ -15,7 +15,9 @@ class UniqueRule extends AbstractRule{
 
     public function isRuleValid(): bool
     {
-        $this->setMessage("La valeur donnée depuis le champs " . $this->getPlaceHolder() . " existe déjà dans nos données. Choisissez une autre valeur.");
+        $this->setMessageDetails("unique", 0, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder()
+        ]);
         $this->abstractFactory->setValueToSearch($this->getValue());
         return !$this->abstractFactory->createSearcher()->isSearchSuccessfull();
     }

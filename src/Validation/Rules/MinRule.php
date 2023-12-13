@@ -18,13 +18,18 @@ class MinRule extends AbstractRule{
     {
         $value = $this->getValue();
 
-        $this->setMessage("La valeur du champs " . $this->getPlaceHolder() ." n'est pas un nombre");
         if(NumberHelper::isFloat($value) == false){
+            $this->setMessageDetails("min", 0, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder()
+            ]);
             return false;
         }
 
-        $this->setMessage("La valeur du champs " . $this->getPlaceHolder() . " ne peut pas être plus petite que : " . $this->minValue);
-        if((float)$value < $this->minValue){
+        if((float)$value > $this->minValue){
+            $this->setMessageDetails("max", 1, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                ":min" => $this->minValue
+            ]);
             return false;
         }
 

@@ -5,6 +5,7 @@ namespace App\Validation\Rules;
 use DateTime;
 use App\Helper\ValueHelper;
 use App\Helper\DateTimeHelper;
+use App\Validation\Rules\Parent\AbstractRule;
 use App\Validation\Rules\Parent\AbstractRuleDateOperation;
 
 class MustBeBeforeOrEqualsDateRule extends AbstractRuleDateOperation
@@ -20,9 +21,18 @@ class MustBeBeforeOrEqualsDateRule extends AbstractRuleDateOperation
         }
 
         if ($this->getIsKey()) {
-            $this->setMessage("La date donnée (" . $value . ") venant du champs " . $this->getPlaceHolder() . " doit être plus tôt ou égal dans le temps que la date que vous avez fournie depuis le champs " . $this->getPlaceHolder($this->getInput()) . ", dont la date est le " . $valueFromAnotherInput . ".");
+            $this->setMessageDetails("mustBeBeforeDateOrEquals", 0, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                AbstractRule::OTHER_PLACEHOLDER =>  $this->getPlaceHolder($this->getInput()),
+                ":date" => $value,
+                ":other_date" => $valueFromAnotherInput
+            ]);
         } else {
-            $this->setMessage("La date donnée (" . $value . ") venant du champs " . $this->getPlaceHolder() . " doit être plus tôt ou égal dans le temps que le " . $valueFromAnotherInput . ".");
+            $this->setMessageDetails("mustBeBeforeDateOrEquals", 1, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                ":date" => $value,
+                ":other_date" => $valueFromAnotherInput
+            ]);
         }
 
         if (ValueHelper::isEmpty($valueFromAnotherInput) == false)

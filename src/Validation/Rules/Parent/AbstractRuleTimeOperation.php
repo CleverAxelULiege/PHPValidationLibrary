@@ -35,21 +35,33 @@ abstract class AbstractRuleTimeOperation extends AbstractRuleDependentAnotherInp
 
     private function messageInvalideTime(?string $time)
     {
-        $this->setMessage("L'heure (" . ($time == null || $time == "" ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder() . " est invalide.");
+        $this->setMessageDetails("timeOperation", 0, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+            ":time" => ($time == null || $time == "" ? "INCONNUE" : $time)
+        ]);
     }
 
     private function messageInvalideTimeFromInput(?string $time)
     {
-        $this->setMessage("L'heure (" . ($time == null || $time == "" ? "INCONNUE" : $time) . ") venant du champs " . $this->getPlaceHolder($this->timeToCompare) . " est invalide.");
+        $this->setMessageDetails("timeOperation", 0, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder($this->timeToCompare),
+            ":time" => ($time == null || $time == "" ? "INCONNUE" : $time)
+        ]);
     }
 
     private function areBothTimesString(mixed $value, mixed $valueFromAnotherInput) : bool{
-        $this->setMessage("Heure au format invalide venant du champs " . $this->getPlaceHolder() .". Elle doit être sous une chaine de charactères au format " . $this->format);
+        $this->setMessageDetails("timeOperation", 1, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+            ":format" => $this->format
+        ]);
         if(!is_string($value)){
             return false;
         }
         
-        $this->setMessage("Heure au format invalide venant du champs " . $this->getPlaceHolder($this->getInput())  . ". Elle doit être sous une chaine de charactères au format " . $this->format);
+        $this->setMessageDetails("timeOperation", 1, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder($this->getInput()),
+            ":format" => $this->format
+        ]);
         if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
             return false;
         }

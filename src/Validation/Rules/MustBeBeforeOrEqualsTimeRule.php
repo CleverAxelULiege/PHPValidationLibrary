@@ -4,6 +4,7 @@ namespace App\Validation\Rules;
 
 use App\Helper\ValueHelper;
 use App\Helper\DateTimeHelper;
+use App\Validation\Rules\Parent\AbstractRule;
 use App\Validation\Rules\Parent\AbstractRuleTimeOperation;
 
 class MustBeBeforeOrEqualsTimeRule extends AbstractRuleTimeOperation{
@@ -17,9 +18,19 @@ class MustBeBeforeOrEqualsTimeRule extends AbstractRuleTimeOperation{
         }
 
         if($this->getIsKey()){
-            $this->setMessage("L'heure donnée (" . $value . ") venant du champs " . $this->getPlaceHolder() . " doit être plus tôt ou égal dans le temps que l'heure que vous avez fournie depuis le champs " . $this->getPlaceHolder($this->getInput()) . ", dont l'heure est " . $valueFromAnotherInput . ".");
+            $this->setMessageDetails("mustBeBeforeTimeOrEquals", 0, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                AbstractRule::OTHER_PLACEHOLDER => $this->getPlaceHolder($this->getInput()),
+                ":time" => $value,
+                ":other_time" => $valueFromAnotherInput,
+            ]);
         }else{
-            $this->setMessage("L'heure donnée (" . $value . ") venant du champs " . $this->getPlaceHolder() . " doit être plus tôt ou égal dans le temps que " . $valueFromAnotherInput . ".");
+            $this->setMessageDetails("mustBeBeforeTimeOrEquals", 1, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                AbstractRule::OTHER_PLACEHOLDER => $this->getPlaceHolder($this->getInput()),
+                ":time" => $value,
+                ":other_time" => $valueFromAnotherInput,
+            ]);
         }
 
         if(ValueHelper::isEmpty($valueFromAnotherInput) == false)

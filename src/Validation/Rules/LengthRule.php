@@ -19,10 +19,15 @@ class LengthRule extends AbstractRule
 
     public function isRuleValid(): bool
     {
+        $placeholderMin = ":min";
+        $placeholderMax = ":max";
+
         $value = $this->getValue();
 
         if(is_string($value) == false && is_array($value) == false){
-            $this->setMessage("La donnée venant du champs " . $this->getPlaceHolder() . " n'est ni sous forme de texte, ni sous forme de liste.");
+            $this->setMessageDetails("length", 0, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder()
+            ]);
             return false;
         }
 
@@ -30,24 +35,36 @@ class LengthRule extends AbstractRule
             $stringLength = mb_strlen($value);
 
             if($stringLength < $this->minLength){
-                $this->setMessage("La longueur du texte venant du champs " . $this->getPlaceHolder() . " doit être supérieur ou égal à " . $this->minLength . ".");
+                $this->setMessageDetails("length", 1, [
+                    AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                    $placeholderMin => $this->minLength
+                ]);
                 return false;
             }
             
             if($this->checkIfMaxLengthNotRespected($stringLength)){
-                $this->setMessage("La longueur du texte venant du champs " . $this->getPlaceHolder() . " doit être inférieur ou égal à " . $this->maxLength . ".");
+                $this->setMessageDetails("length", 2, [
+                    AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                    $placeholderMax => $this->maxLength
+                ]);
                 return false;
             }
 
         } else if (is_array($value)) {
             $arrayLength = count($value);
             if($arrayLength < $this->minLength){
-                $this->setMessage("La longueur de votre liste venant du champs :". $this->getPlaceHolder() .", doit être supérieur ou égal à " . $this->minLength . ".");
+                $this->setMessageDetails("length", 3, [
+                    AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                    $placeholderMin => $this->minLength
+                ]);
                 return false;
             }
 
             if($this->checkIfMaxLengthNotRespected($arrayLength)){
-                $this->setMessage("La longueur de votre liste venant du champs : ". $this->getPlaceHolder() .", doit être inférieur ou égal à " . $this->maxLength . ".");
+                $this->setMessageDetails("length", 4, [
+                    AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                    $placeholderMax => $this->maxLength
+                ]);
                 return false;
             }
         }

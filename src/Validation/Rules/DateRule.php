@@ -17,8 +17,9 @@ class DateRule extends AbstractRule{
     public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->setMessage("La date donnée venant du champs " . $this->getPlaceHolder() . " n'est pas valide");
-        
+        $this->setMessageDetails("date", 0, [
+            ":placeholder" => $this->getPlaceHolder(),
+        ]);
         if(!is_string($value)){
             return false;
         }

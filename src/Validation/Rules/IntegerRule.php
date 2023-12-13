@@ -14,8 +14,9 @@ class IntegerRule extends AbstractRule{
 
     public function isRuleValid(): bool
     {
-        $this->setMessage("La valeur du champs " . $this->getPlaceHolder() ." n'est pas un nombre entier");
-
+        $this->setMessageDetails("integer", 0, [
+            ":placeholder" => $this->getPlaceHolder()
+        ]);
         return NumberHelper::isInteger($this->getValue());
     }
 }

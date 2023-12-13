@@ -7,6 +7,11 @@ use BadMethodCallException;
 abstract class AbstractRule
 {
     private string $message = "";
+
+    private string $messageDetailsKey = "";
+    private int $messageDetailsIndex = 0;
+    private array $messageDetailsReplacements = [];
+
     private mixed $value = null;
     private ?string $type = null;
     private ?string $key = null;
@@ -14,6 +19,9 @@ abstract class AbstractRule
     protected const HIGH_PRIORITY = 0;
     protected const MEDIUM_PRIORITY = 1;
     protected  const LOW_PRIORITY = 2;
+
+    const PLACEHOLDER = ":placeholder";
+    const OTHER_PLACEHOLDER = ":other_placeholder";
 
     public abstract function isRuleValid(): bool;
 
@@ -51,6 +59,13 @@ abstract class AbstractRule
     {
         $this->message = $message;
     }
+
+    protected function setMessageDetails(string $key, int $index, array $replacements){
+        $this->messageDetailsKey = $key;
+        $this->messageDetailsIndex = $index;
+        $this->messageDetailsReplacements = $replacements;
+    }
+
 
     // public function setValueAndKey(mixed $value, string $key)
     // {

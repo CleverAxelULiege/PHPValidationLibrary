@@ -8,7 +8,9 @@ class EmailRule extends AbstractRule{
     public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->setMessage("L'adresse e-mail du champs " . $this->getPlaceHolder() . " n'est pas valide.");
+        $this->setMessageDetails("email", 0, [
+            ":placeholder" => $this->getPlaceHolder()
+        ]);
         return preg_match("/^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/i", $value);
     }
 }

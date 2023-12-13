@@ -16,7 +16,9 @@ class ExistRule extends AbstractRule{
 
     public function isRuleValid(): bool
     {
-        $this->setMessage("La valeur donnée depuis le champs " . $this->getPlaceHolder() . " n'existe pas dans nos données.");
+        $this->setMessageDetails("exist", 0, [
+            ":placeholder" => $this->getPlaceHolder()
+        ]);
         $this->abstractFactory->setValueToSearch($this->getValue());
         return $this->abstractFactory->createSearcher()->isSearchSuccessfull();
     }

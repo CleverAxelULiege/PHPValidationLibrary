@@ -11,7 +11,9 @@ class RequiredRule extends AbstractRule{
     public function isRuleValid(): bool
     {
         $value = $this->getValue();
-        $this->setMessage("La valeur du champs " . $this->getPlaceHolder() . " est obligatoire et ne peut pas être composée uniquement d'espaces.");
+        $this->setMessageDetails("required", 0, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder()
+        ]);
 
         return ValueHelper::isEmpty($value) == false;
     }

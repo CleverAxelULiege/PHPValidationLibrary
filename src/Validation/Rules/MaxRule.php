@@ -18,13 +18,20 @@ class MaxRule extends AbstractRule{
     {
         $value = $this->getValue();
 
-        $this->setMessage("La valeur du champs " . $this->getPlaceHolder() ." n'est pas un nombre");
-        if(NumberHelper::isFloat($value) == false)
+        if(NumberHelper::isFloat($value) == false){
+            $this->setMessageDetails("max", 0, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder()
+            ]);
             return false;
+        }
 
-        $this->setMessage("La valeur du champs " . $this->getPlaceHolder() . " ne peut pas être plus grande que : " . $this->maxValue);
-        if((float)$value > $this->maxValue)
+        if((float)$value > $this->maxValue){
+            $this->setMessageDetails("max", 1, [
+                AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+                ":max" => $this->maxValue
+            ]);
             return false;
+        }
 
         if(NumberHelper::isInteger($value)){
             $this->setType("int");

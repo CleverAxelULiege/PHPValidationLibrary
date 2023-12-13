@@ -36,21 +36,37 @@ abstract class AbstractRuleDateOperation extends AbstractRuleDependentAnotherInp
 
     private function messageInvalideDate(?string $date)
     {
-        $this->setMessage("La date (" . ($date == null || $date == "" ? "INCONNUE" : $date) . ") venant du champs " . $this->getPlaceHolder() . " est invalide.");
+        $this->setMessageDetails("dateOperation", 0, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+            ":date" => ($date == null || $date == "" ? "INCONNUE" : $date),
+        ]);
+        // $this->setMessage("La date (" . ($date == null || $date == "" ? "INCONNUE" : $date) . ") venant du champs " . $this->getPlaceHolder() . " est invalide.");
     }
 
     private function messageInvalideDateFromInput(?string $date)
     {
-        $this->setMessage("La date (" . ($date == null || $date == "" ? "INCONNUE" : $date) . ") venant du champs " . $this->getPlaceHolder($this->dateToCompare) . " est invalide.");
+        $this->setMessageDetails("dateOperation", 0, [
+            AbstractRule::PLACEHOLDER =>  $this->getPlaceHolder($this->dateToCompare),
+            ":date" => ($date == null || $date == "" ? "INCONNUE" : $date),
+        ]);
+        // $this->setMessage("La date (" . ($date == null || $date == "" ? "INCONNUE" : $date) . ") venant du champs " . $this->getPlaceHolder($this->dateToCompare) . " est invalide.");
     }
 
     private function areBothDatesString(mixed $value, mixed $valueFromAnotherInput) : bool {
-        $this->setMessage("Date au format invalide venant du champs " . $this->getPlaceHolder() .". Elle doit être sous une chaine de charactères au format " . $this->format);
+        $this->setMessageDetails("dateOperation", 1, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder(),
+            ":format" => $this->format
+        ]);
+        // $this->setMessage("Date au format invalide venant du champs " . $this->getPlaceHolder() .". Elle doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($value)){
             return false;
         }
 
-        $this->setMessage("Date au format invalide venant du champs " . $this->getPlaceHolder($this->getInput())  . ". Elle doit être sous une chaine de charactères au format " . $this->format);
+        $this->setMessageDetails("dateOperation", 1, [
+            AbstractRule::PLACEHOLDER => $this->getPlaceHolder($this->getInput()),
+            ":format" => $this->format
+        ]);
+        // $this->setMessage("Date au format invalide venant du champs " . $this->getPlaceHolder($this->getInput())  . ". Elle doit être sous une chaine de charactères au format " . $this->format);
         if(!is_string($valueFromAnotherInput) && $this->getIsKey()){
             return false;
         }
